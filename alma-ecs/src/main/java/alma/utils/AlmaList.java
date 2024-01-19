@@ -99,21 +99,6 @@ public class AlmaList<T> implements Iterable<T> {
     }
 
     /**
-     * Returns the index of an element. Returns -1 if the element is not in the list
-     * @param e Element to find the index of
-     * @return The index of the element. -1 if not found
-     */
-    public int getIndexOf(T e) {
-        for (int i = 0; i < data.length; i++) {
-            T aux = data[i];
-            if (aux.equals(e)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
      * Sets the specified index to the passed element. Grows if the index is out of bounds.
      * @param i Index of the element
      * @param e Element to set in the specified index
@@ -134,6 +119,10 @@ public class AlmaList<T> implements Iterable<T> {
             }
         }
         return false;
+    }
+
+    pricate void grow() {
+
     }
 
     @Override
