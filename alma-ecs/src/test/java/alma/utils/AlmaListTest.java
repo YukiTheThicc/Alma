@@ -10,13 +10,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AlmaListTest {
 
-    private static final int NUM_ITERATIONS_TESTS = 5;
+    private static final int NUM_ITERATIONS_TESTS = 10;
 
     private class TestEntity extends Entity {
         public int value;
 
         TestEntity() {
-            value = (int) (1 + (Math.random() * 1000));
+            value = (int) (1 + (Math.random() * Integer.MAX_VALUE));
         }
 
         TestEntity(int value) {
@@ -33,7 +33,7 @@ class AlmaListTest {
 
         @Override
         public String toString() {
-            return "TestEntity [value=" + value +"]";
+            return "TestEntity [value=" + value + "]";
         }
     }
 
@@ -62,8 +62,8 @@ class AlmaListTest {
                 testList.add(new TestEntity());
             }
             actual = testList.size();
-            TestUtils.printTestIteration(i, expected, actual);
             assertEquals(expected, actual);
+            TestUtils.printTestIteration(i, expected, actual);
         }
     }
 
@@ -85,9 +85,9 @@ class AlmaListTest {
                 testList.add(new TestEntity());
             }
             actual = testList.maxSize();
-            TestUtils.printTestIteration(i, expected, actual);
             assertEquals(expected, actual);
-            expected *= 2;
+            TestUtils.printTestIteration(i, expected, actual);
+            expected += 64;
         }
     }
 
@@ -115,8 +115,8 @@ class AlmaListTest {
                 expected = true;
             }
             actual = testList.isEmpty();
-            TestUtils.printTestIteration(i, expected, actual);
             assertEquals(expected, actual);
+            TestUtils.printTestIteration(i, expected, actual);
         }
     }
 
@@ -143,8 +143,8 @@ class AlmaListTest {
 
             testList.add(expected);
             actual = testList.get(testList.size() - 1);
-            TestUtils.printTestIteration(i, expected, actual);
             assertEquals(expected, actual);
+            TestUtils.printTestIteration(i, expected, actual);
         }
     }
 
@@ -156,31 +156,156 @@ class AlmaListTest {
          */
         AlmaList<TestEntity> expected;
         AlmaList<TestEntity> actual;
+        AlmaList<TestEntity> toAdd;
+        int initialListSize = 16;
 
         TestUtils.printTestHeader("testAddList");
         for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
 
-            expected = new AlmaList<TestEntity>();
+            toAdd = new AlmaList<TestEntity>(initialListSize);
+            actual = new AlmaList<TestEntity>(initialListSize);
+            expected = new AlmaList<TestEntity>(initialListSize);
 
-            // Add random amount of elements to the list
-            items = (int) (1 + (Math.random() * 64));
+            // Add random amount of elements to the list to add
+            int items = (int) (1 + (Math.random() * initialListSize));
             for (int j = 0; j < items; j++) {
-                expected.add(new TestEntity());
+                TestEntity newEntity = new TestEntity();
+                toAdd.add(newEntity);
+                expected.add(newEntity);
             }
 
-            testList.add(expected);
-            actual = testList.get(testList.size() - 1);
+            // Add random amount of elements to the list to the actual list
+            items = (int) (1 + (Math.random() * initialListSize));
+            for (int j = 0; j < items; j++) {
+                TestEntity newEntity = new TestEntity();
+                actual.add(newEntity);
+                expected.add(newEntity);
+            }
+
+            // The list to add is added to actual
+            actual.addList(toAdd);
+
+            // Check if expected and actual have the same elements
+            boolean hasAllElements = true;
+            for (int j = 0; j < expected.size(); j++) {
+                TestEntity aux = expected.get(j);
+                boolean exists = false;
+                for (int k = 0; k < actual.size(); k++) {
+                    if (aux.equals(actual.get(k))) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    hasAllElements = false;
+                    break;
+                }
+            }
+
+            final int expectedSize = expected.size();
+            final int actualSize = actual.size();
+            final boolean finalHasAllElements = hasAllElements;
+            assertAll(
+                    () -> assertEquals(expectedSize, actualSize),
+                    () -> assertTrue(finalHasAllElements)
+            );
+
             TestUtils.printTestIteration(i, expected, actual);
-            assertEquals(expected, actual);
         }
     }
 
     @Test
-    void testRemove() {
+    void testRemoveByElement() {
+
+        /*
+         * Removes a known element from the list.
+         */
+        TestUtils.printTestHeader("testRemoveByElement");
+        for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
+
+            // SETUP TO REMOVE BY ELEMENT
+            TestEntity expectedEntityRemoved = new TestEntity();
+            AlmaList<TestEntity> testList = new AlmaList<>();
+
+            // Add random amount of elements to the list and add the expected entity on known random position
+            int items = (int) (1 + (Math.random() * 64));
+            int knownIndex = (int) (0 + (Math.random() * (items - 1)));
+            for (int j = 0; j < items; j++) {
+                if (knownIndex == j) {
+                    testList.add(expectedEntityRemoved);
+                } else {
+                    testList.add(new TestEntity());
+                }
+            }
+
+            boolean actualEntityRemovedBoolean = testList.remove(expectedEntityRemoved);
+            boolean expectedEntityRemovedBoolean = true;
+            assertEquals(expectedEntityRemovedBoolean, actualEntityRemovedBoolean);
+            TestUtils.printTestIteration(i, expectedEntityRemovedBoolean, actualEntityRemovedBoolean);
+        }
+    }
+
+    @Test
+    void testRemoveByElementNotExists() {
+
+        /*
+         * Removes a known element from the list.
+         */
+        TestUtils.printTestHeader("testRemoveByElementNotExists");
+        for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
+
+            // SETUP TO REMOVE BY ELEMENT
+            TestEntity expectedEntityRemoved = new TestEntity();
+            AlmaList<TestEntity> testList = new AlmaList<>();
+
+            // Add random amount of elements to the list and add the expected entity on known random position
+            int items = (int) (1 + (Math.random() * 64));
+            for (int j = 0; j < items; j++) {
+                testList.add(new TestEntity());
+            }
+
+            boolean actualEntityRemovedBoolean = testList.remove(expectedEntityRemoved);
+            boolean expectedEntityRemovedBoolean = false;
+            assertEquals(expectedEntityRemovedBoolean, actualEntityRemovedBoolean);
+            TestUtils.printTestIteration(i, expectedEntityRemovedBoolean, actualEntityRemovedBoolean);
+        }
+    }
+
+    @Test
+    void testRemoveByIndex() {
+
+        /*
+         * Removes a known index from the list.
+         */
+        TestUtils.printTestHeader("testRemoveByIndex");
+        for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
+
+            // SETUP TO REMOVE BY INDEX
+            TestEntity expectedEntityRemoved = new TestEntity();
+            AlmaList<TestEntity> testList = new AlmaList<>();
+
+            // Add random amount of elements to the list and add the expected entity on known random position
+            int items = (int) (1 + (Math.random() * 64));
+            int knownIndex = (int) (0 + (Math.random() * (items - 1)));
+            for (int j = 0; j < items; j++) {
+                if (knownIndex == j) {
+                    testList.add(expectedEntityRemoved);
+                } else {
+                    testList.add(new TestEntity());
+                }
+            }
+
+            System.out.println(knownIndex);
+            System.out.println(testList.size);
+            TestEntity actualEntityRemoved = testList.remove(knownIndex);
+            assertEquals(expectedEntityRemoved, actualEntityRemoved);
+            TestUtils.printTestIteration(i, expectedEntityRemoved, actualEntityRemoved);
+        }
     }
 
     @Test
     void testGet() {
+
     }
 
     @Test
