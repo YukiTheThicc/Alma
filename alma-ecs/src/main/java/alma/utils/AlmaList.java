@@ -2,7 +2,6 @@ package alma.utils;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -33,13 +32,12 @@ public class AlmaList<T> implements Iterable<T> {
     }
 
     // GETTERS & SETTERS
-
     /**
      * Gets the current size of the list
      *
      * @return Size of the list
      */
-    public int getSize() {
+    public int size() {
         return size;
     }
 
@@ -48,7 +46,7 @@ public class AlmaList<T> implements Iterable<T> {
      *
      * @return Max size of the list
      */
-    public int getMaxSize() {
+    public int maxSize() {
         return data.length;
     }
 
