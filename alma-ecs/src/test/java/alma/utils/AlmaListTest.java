@@ -57,7 +57,7 @@ class AlmaListTest {
         TestUtils.printTestHeader("testSize");
         for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
             expected = (int) (1 + (Math.random() * 1000));
-            AlmaList<TestEntity> testList = new AlmaList<TestEntity>();
+            AlmaList<TestEntity> testList = new AlmaList<>();
             for (int j = 0; j < expected; j++) {
                 testList.add(new TestEntity());
             }
@@ -133,7 +133,7 @@ class AlmaListTest {
         for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
 
             expected = new TestEntity();
-            AlmaList<TestEntity> testList = new AlmaList<TestEntity>();
+            AlmaList<TestEntity> testList = new AlmaList<>();
 
             // Add random amount of elements to the list
             int items = (int) (1 + (Math.random() * 64));
@@ -162,9 +162,9 @@ class AlmaListTest {
         TestUtils.printTestHeader("testAddList");
         for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
 
-            toAdd = new AlmaList<TestEntity>(initialListSize);
-            actual = new AlmaList<TestEntity>(initialListSize);
-            expected = new AlmaList<TestEntity>(initialListSize);
+            toAdd = new AlmaList<>(initialListSize);
+            actual = new AlmaList<>(initialListSize);
+            expected = new AlmaList<>(initialListSize);
 
             // Add random amount of elements to the list to add
             int items = (int) (1 + (Math.random() * initialListSize));
@@ -295,8 +295,6 @@ class AlmaListTest {
                 }
             }
 
-            System.out.println(knownIndex);
-            System.out.println(testList.size);
             TestEntity actualEntityRemoved = testList.remove(knownIndex);
             assertEquals(expectedEntityRemoved, actualEntityRemoved);
             TestUtils.printTestIteration(i, expectedEntityRemoved, actualEntityRemoved);
@@ -305,7 +303,40 @@ class AlmaListTest {
 
     @Test
     void testGet() {
+        /*
+         * Tests the get method
+         */
+        final int INITIAL_SIZE = 32;
+        TestEntity expected;
+        int expectedSize;
+        TestEntity actual;
+        int actualSize;
 
+        TestUtils.printTestHeader("testGet");
+        for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
+
+            expected = new TestEntity();
+            AlmaList<TestEntity> testList = new AlmaList<>(INITIAL_SIZE);
+
+            // Add random amount of elements to the list
+            int items = (int) (1 + (Math.random() * INITIAL_SIZE));
+            // Each even iteration the index to get will be
+            int knownIndex = i % 2 == 0 ? (int) (1 + (Math.random() * INITIAL_SIZE)) : (int) (1 + (Math.random() * INITIAL_SIZE * 2));
+            for (int j = 0; j < items; j++) {
+                if (j == knownIndex) {
+                    testList.add(expected);
+                    // 1.5 being the factor of growth for AlmaList
+                    expectedSize = (int) Math.max(INITIAL_SIZE * 1.5, knownIndex * 1.5);
+                } else {
+                    testList.add(new TestEntity());
+                }
+            }
+
+            actual = testList.get(knownIndex);
+            actualSize = testList.maxSize();
+            assertEquals(expected, actual);
+            TestUtils.printTestIteration(i, expected, actual);
+        }
     }
 
     @Test

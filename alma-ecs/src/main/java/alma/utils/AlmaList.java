@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 
 public class AlmaList<T> implements Iterable<T> {
 
+    private static final float GROWTH_FACTOR = 1.5f;
+
     // ATTRIBUTES
     T[] data;                   // Actual array of data
     protected int size = 0;     // Current amount of elements stored in the list
@@ -67,9 +69,7 @@ public class AlmaList<T> implements Iterable<T> {
      * @param e Element to add
      */
     public void add(T e) {
-        if (size == data.length) {
-            data = Arrays.copyOf(data, (int) (size * 1.5));
-        }
+        if (size == data.length) changeSize((int) (size * GROWTH_FACTOR));
         data[size++] = e;
     }
 
@@ -125,7 +125,7 @@ public class AlmaList<T> implements Iterable<T> {
      */
     public T get(int i) {
         if (i <= data.length) {
-            changeSize((int) Math.max(size * 1.5, i * 1.5));
+            changeSize((int) Math.max(size * GROWTH_FACTOR, i * GROWTH_FACTOR));
         }
         return data[i];
     }
@@ -138,7 +138,7 @@ public class AlmaList<T> implements Iterable<T> {
      */
     public void set(int i, T e) {
         if (size == data.length) {
-            changeSize((int) Math.max(size * 1.5, i * 1.5));
+            changeSize((int) Math.max(size * GROWTH_FACTOR, i * GROWTH_FACTOR));
         }
         data[i] = e;
     }
