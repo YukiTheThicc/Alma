@@ -306,34 +306,28 @@ class AlmaListTest {
         /*
          * Tests the get method
          */
-        final int INITIAL_SIZE = 32;
         TestEntity expected;
-        int expectedSize;
         TestEntity actual;
-        int actualSize;
 
         TestUtils.printTestHeader("testGet");
         for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
 
             expected = new TestEntity();
-            AlmaList<TestEntity> testList = new AlmaList<>(INITIAL_SIZE);
+            AlmaList<TestEntity> testList = new AlmaList<>();
 
             // Add random amount of elements to the list
-            int items = (int) (1 + (Math.random() * INITIAL_SIZE));
-            // Each even iteration the index to get will be
-            int knownIndex = i % 2 == 0 ? (int) (1 + (Math.random() * INITIAL_SIZE)) : (int) (1 + (Math.random() * INITIAL_SIZE * 2));
+            int items = (int) (1 + (Math.random() * 64));
+            // A random index from the added items is chosen to add the expected entity
+            int knownIndex = (int) (0 + (Math.random() * items));
             for (int j = 0; j < items; j++) {
                 if (j == knownIndex) {
                     testList.add(expected);
-                    // 1.5 being the factor of growth for AlmaList
-                    expectedSize = (int) Math.max(INITIAL_SIZE * 1.5, knownIndex * 1.5);
                 } else {
                     testList.add(new TestEntity());
                 }
             }
 
             actual = testList.get(knownIndex);
-            actualSize = testList.maxSize();
             assertEquals(expected, actual);
             TestUtils.printTestIteration(i, expected, actual);
         }
@@ -341,6 +335,30 @@ class AlmaListTest {
 
     @Test
     void testSet() {
+        /*
+         * Tests the set method. Sets a known entity to a random index and then tries to get that entity
+         */
+        TestEntity expected;
+        TestEntity actual;
+
+        TestUtils.printTestHeader("testGet");
+        for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
+
+            expected = new TestEntity();
+            AlmaList<TestEntity> testList = new AlmaList<>();
+
+            // Add random amount of elements to the list
+            int items = (int) (1 + (Math.random() * 64));
+            // A random index from the added items is chosen to add the expected entity
+            int knownIndex = (int) (0 + (Math.random() * items));
+            for (int j = 0; j < items; j++) {
+                    testList.add(new TestEntity());
+            }
+
+            actual = testList.get(knownIndex);
+            assertEquals(expected, actual);
+            TestUtils.printTestIteration(i, expected, actual);
+        }
     }
 
     @Test
