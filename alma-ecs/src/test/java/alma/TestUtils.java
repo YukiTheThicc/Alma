@@ -4,20 +4,22 @@ import java.lang.System;
 
 public class TestUtils {
 
-    private static final int CHARACTERS_PER_LINE = 160;
-    private static final String LIT_ITERATION = "ITER.";
+    private static final int CHARACTERS_PER_LINE = 150;
+    private static final String LIT_ITERATION = "TEST";
     private static final String LIT_EXPECTED = "EXPECTED";
     private static final String LIT_ACTUAL = "ACTUAL";
-    private static final int COL_SIZE_ITERATION = 12;
-    private static int COL_SIZE_EXPECTED = 74;
-    private static int COL_SIZE_ACTUAL = 74;
-    private static final int SPACING_HEADER_ITERATION = (COL_SIZE_ITERATION - LIT_ITERATION.length()) / 2;
+    private static int COL_SIZE_ITERATION = 50;
+    private static int COL_SIZE_EXPECTED = 50;
+    private static int COL_SIZE_ACTUAL = 50;
+    private static int SPACING_HEADER_ITERATION = (COL_SIZE_ITERATION - LIT_ITERATION.length()) / 2;
     private static int SPACING_HEADER_EXPECTED = (COL_SIZE_EXPECTED - LIT_EXPECTED.length()) / 2;
     private static int SPACING_HEADER_ACTUAL = (COL_SIZE_ACTUAL - LIT_ACTUAL.length()) / 2;
 
     public static void printTestHeader(String test) {
-        COL_SIZE_EXPECTED = 74;
-        COL_SIZE_ACTUAL = 74;
+        COL_SIZE_ITERATION = 50;
+        COL_SIZE_EXPECTED = 50;
+        COL_SIZE_ACTUAL = 50;
+        SPACING_HEADER_ITERATION = (COL_SIZE_ITERATION - LIT_ITERATION.length()) / 2;
         SPACING_HEADER_EXPECTED = (COL_SIZE_EXPECTED - LIT_EXPECTED.length()) / 2;
         SPACING_HEADER_ACTUAL = (COL_SIZE_ACTUAL - LIT_ACTUAL.length()) / 2;
         String sb =
@@ -30,9 +32,11 @@ public class TestUtils {
     }
 
     public static void printTestHeader(String test, int[] headerLengths) {
-        if (headerLengths != null && headerLengths.length == 2) {
-            COL_SIZE_EXPECTED = headerLengths[0];
-            COL_SIZE_ACTUAL = headerLengths[1];
+        if (headerLengths != null && headerLengths.length == 3) {
+            COL_SIZE_ITERATION = headerLengths[0];
+            COL_SIZE_EXPECTED = headerLengths[1];
+            COL_SIZE_ACTUAL = headerLengths[2];
+            SPACING_HEADER_ITERATION = (COL_SIZE_ITERATION - LIT_ITERATION.length()) / 2;
             SPACING_HEADER_EXPECTED = (COL_SIZE_EXPECTED - LIT_EXPECTED.length()) / 2;
             SPACING_HEADER_ACTUAL = (COL_SIZE_ACTUAL - LIT_ACTUAL.length()) / 2;
         }
@@ -45,11 +49,11 @@ public class TestUtils {
         System.out.println(sb);
     }
 
-    public static void printTestIteration(int iteration, Object expected, Object actual) {
-        int iterSpacing = COL_SIZE_ITERATION - String.valueOf(iteration).length() > 0 ? (COL_SIZE_ITERATION - String.valueOf(iteration).length()) / 2 : 2;
+    public static void printTestIteration(Object test, Object expected, Object actual) {
+        int iterSpacing = COL_SIZE_ITERATION - String.valueOf(test).length() > 0 ? (COL_SIZE_ITERATION - String.valueOf(test).length()) / 2 : 2;
         int expectedSpacing = COL_SIZE_EXPECTED - String.valueOf(expected).length() > 0 ? (COL_SIZE_EXPECTED - String.valueOf(expected).length()) / 2 : 2;
         int actualSpacing = COL_SIZE_ACTUAL - String.valueOf(actual).length() > 0 ? (COL_SIZE_ACTUAL - String.valueOf(actual).length()) / 2 : 2;
-        String sb = "|" + " ".repeat(iterSpacing - 1 - (String.valueOf(iteration).length() + 1) % 2) + iteration + " ".repeat(iterSpacing) +
+        String sb = "|" + " ".repeat(iterSpacing - 1 - (String.valueOf(test).length() + 1) % 2) + test + " ".repeat(iterSpacing) +
                 "|" + " ".repeat(expectedSpacing - (String.valueOf(expected).length() + 1) % 2) + expected + " ".repeat(expectedSpacing) +
                 "|" + " ".repeat(actualSpacing - (String.valueOf(actual).length() + 1) % 2) + actual + " ".repeat(actualSpacing) + "|";
         System.out.println(sb);
