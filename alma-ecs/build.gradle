@@ -2,8 +2,11 @@ plugins {
     id 'java'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+sourceCompatibility = "17"
+targetCompatibility = "17"
+
+group 'alma'
+version '0.0.1 DEV'
 
 repositories {
     mavenCentral()
