@@ -24,10 +24,15 @@ public class TestUtils {
         SPACING_HEADER_ACTUAL = (COL_SIZE_ACTUAL - LIT_ACTUAL.length()) / 2;
         String sb =
                 "\n STARTING TEST: " + test + "\n" +
-                        "_".repeat(CHARACTERS_PER_LINE) + "\n" +
-                        "|" + " ".repeat(SPACING_HEADER_ITERATION - 1) + LIT_ITERATION + " ".repeat(SPACING_HEADER_ITERATION) +
-                        "|" + " ".repeat(SPACING_HEADER_EXPECTED - 1) + LIT_EXPECTED + " ".repeat(SPACING_HEADER_EXPECTED) +
-                        "|" + " ".repeat(SPACING_HEADER_ACTUAL - 1) + LIT_ACTUAL + " ".repeat(SPACING_HEADER_ACTUAL) + "|";
+                        "=".repeat(CHARACTERS_PER_LINE) + "\n" +
+                        "|" + "_".repeat(SPACING_HEADER_ITERATION - 1) + LIT_ITERATION + "_".repeat(SPACING_HEADER_ITERATION - 1) +
+                        "|" + "_".repeat(SPACING_HEADER_EXPECTED - 1) + LIT_EXPECTED + "_".repeat(SPACING_HEADER_EXPECTED) +
+                        "|" + "_".repeat(SPACING_HEADER_ACTUAL - 1) + LIT_ACTUAL + "_".repeat(SPACING_HEADER_ACTUAL) + "|";
+        System.out.println(sb);
+    }
+
+    public static void printTestEnd() {
+        String sb = "=".repeat(CHARACTERS_PER_LINE) + "\n";
         System.out.println(sb);
     }
 
