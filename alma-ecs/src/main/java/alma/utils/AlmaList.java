@@ -150,8 +150,8 @@ public class AlmaList<T> implements Iterable<T> {
      * @return Ture if element is inside the list, false otherwise
      */
     public boolean contains(T e) {
-        for (T d : data) {
-            if (d.equals(e)) {
+        for (int i = 0; i < size; i++) {
+            if (data[i].equals(e)) {
                 return true;
             }
         }

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AlmaListTest {
 
-    private static final int NUM_ITERATIONS_TESTS = 10;
+    private static final int NUM_ITERATIONS_TESTS = 11;       // Number of iterations for bulk tests
 
     private class TestEntity extends Entity {
         public int value;
@@ -341,7 +341,7 @@ class AlmaListTest {
         TestEntity expected;
         TestEntity actual;
 
-        TestUtils.printTestHeader("testGet");
+        TestUtils.printTestHeader("testSet");
         for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
 
             expected = new TestEntity();
@@ -352,9 +352,10 @@ class AlmaListTest {
             // A random index from the added items is chosen to add the expected entity
             int knownIndex = (int) (0 + (Math.random() * items));
             for (int j = 0; j < items; j++) {
-                    testList.add(new TestEntity());
+                testList.add(new TestEntity());
             }
 
+            testList.set(knownIndex, expected);
             actual = testList.get(knownIndex);
             assertEquals(expected, actual);
             TestUtils.printTestIteration(i, expected, actual);
@@ -363,9 +364,76 @@ class AlmaListTest {
 
     @Test
     void testContains() {
+        /*
+         * Tests the contains method. Sets a known entity to a random index and then checks if the entity is on the list.
+         * Each odd iteration doesn't add the expected entity.
+         */
+        boolean expected;
+        boolean actual;
+
+        TestUtils.printTestHeader("testContains");
+        for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
+
+            TestEntity containedEntity = new TestEntity();
+            AlmaList<TestEntity> testList = new AlmaList<>();
+
+            // Add random amount of elements to the list
+            int items = (int) (1 + (Math.random() * 64));
+            // A random index from the added items is chosen to add the expected entity
+            int knownIndex = (int) (0 + (Math.random() * items));
+            for (int j = 0; j < items; j++) {
+                testList.add(new TestEntity());
+            }
+
+            // If the iteration is even the known entity is placed into the list
+            if (i % 2 == 0) {
+                testList.set(knownIndex, containedEntity);
+                expected = true;
+            } else {
+                expected = false;
+            }
+
+            actual = testList.contains(containedEntity);
+            assertEquals(expected, actual);
+            TestUtils.printTestIteration(i, expected, actual);
+        }
     }
 
     @Test
     void testGrow() {
+        /*
+         * Test for the list growing as expected. List should grow when an item is added when full, when getting an item
+         * out of bounds and when setting an item out of bounds. It should grow by a factor of 1.5 of either the max size
+         * or  the index it is trying to access (get and set), whichever is highest.
+         *
+         * This functionality of the list is critical, so this method should test thoroughly.
+         */
+
+        TestUtils.printTestHeader("testContains");
+        for (int i = 0; i < NUM_ITERATIONS_TESTS; i++) {
+            testGrowAdd(i);
+        }
+    }
+
+    void testGrowAdd(int i) {
+
+        /*
+         * Tests one iteration for the growth of the list when adding an item to a full list
+         */
+
+        // Set a random size to the list and fill it with elements.
+        int items = (int) (1 + (Math.random() * 1024));
+        int expected = (int) (items * 1.5);
+        AlmaList<TestEntity> testList = new AlmaList<>(items);
+
+        // A random index from the added items is chosen to add the expected entity
+        for (int j = 0; j < items + 1; j++) {
+            testList.add(new TestEntity());
+        }
+
+        int actual = testList.maxSize();
+
+        assertEquals(expected, actual);
+        TestUtils.printTestIteration(i, expected, actual);
     }
 }
