@@ -1,8 +1,21 @@
 package alma;
 
+import alma.structures.Partition;
+
+/**
+ * An entity is the representation of an item within Alma. Entities are identifiable externally through an UUID, though
+ * for performance reasons they are internally identified with integers. Entities don't store any in-game data nor
+ * implement any in-game behaviour.
+ *
+ * @author santiago.barreiro
+ */
 public class Entity {
 
-    /*
-     * Entities are mostly empty objects that only hold an ID to be identified from. They act as groupers for components
-     */
+    // ATTRIBUTES
+    private Partition partition;
+    private int iid;
+    private long uuid;
+
+    // CONSTRUCTORS
+
 }

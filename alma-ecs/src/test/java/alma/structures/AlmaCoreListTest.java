@@ -1,4 +1,4 @@
-package alma.utils;
+package alma.structures;
 
 import alma.Entity;
 import alma.TestUtils;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AlmaListTest {
+class AlmaCoreListTest {
 
     private static final int DEFAULT_LIST_SIZE = 16;
     private TestEntity[] entities;

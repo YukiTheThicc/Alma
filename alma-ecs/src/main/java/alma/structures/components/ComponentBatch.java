@@ -1,6 +1,6 @@
 package alma.structures.components;
 
-import alma.Component;
+import alma.api.Component;
 
 public class ComponentBatch<T extends Component> {
 
