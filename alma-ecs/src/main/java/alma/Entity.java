@@ -1,6 +1,7 @@
 package alma;
 
 import alma.structures.Partition;
+import alma.utils.UUIDGen;
 
 /**
  * An entity is the representation of an item within Alma. Entities are identifiable externally through an UUID, though
@@ -17,5 +18,9 @@ public class Entity {
     private long uuid;
 
     // CONSTRUCTORS
-
+    public Entity(Partition partition) {
+        this.partition = partition;
+        this.uuid = UUIDGen.generateUUID();
+        this.iid = 0;
+    }
 }
