@@ -2,7 +2,7 @@ package alma.structures;
 
 import alma.Entity;
 import alma.TestUtils;
-import alma.structures.general.AlmaList;
+import alma.utils.AlmaList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

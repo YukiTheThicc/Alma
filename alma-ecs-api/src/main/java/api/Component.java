@@ -1,4 +1,4 @@
-package alma.api;
+package api;
 
 public interface Component {
     /*

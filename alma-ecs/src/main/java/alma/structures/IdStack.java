@@ -1,9 +1,9 @@
-package alma.structures.general;
+package alma.structures;
 
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
 
-public class IdStack {
+public final class IdStack {
 
     // ATTRIBUTES
     private MemorySegment memory;

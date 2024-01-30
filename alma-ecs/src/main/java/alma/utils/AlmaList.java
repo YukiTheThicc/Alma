@@ -1,18 +1,20 @@
-package alma.structures.general;
+package alma.utils;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
-public class AlmaList<T> implements Iterable<T> {
+/**
+ * Utility list class. Faster implementation but does not keep order of elements.
+ *
+ * @param <T> Class to store within the list
+ */
+public class AlmaList<T> {
 
     private static final float GROWTH_FACTOR = 1.5f;
 
     // ATTRIBUTES
     T[] data;                   // Actual array of data
     protected int size = 0;     // Current amount of elements stored in the list
-    private Iterator<T> i;      // Iterator of the pool
 
     // CONSTRUCTORS
     public AlmaList() {
@@ -168,11 +170,6 @@ public class AlmaList<T> implements Iterable<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
-        return null;
-    }
-
-    @Override
     public String toString() {
         StringBuilder m = new StringBuilder("AlmaList(" + data.length + ") : [");
         for (int i = 0; i < size; i++) {
@@ -183,36 +180,6 @@ public class AlmaList<T> implements Iterable<T> {
         }
         m.append("]");
         return m.toString();
-    }
-
-    private final class ListIterator implements Iterator<T> {
-
-        private int cursor;         // Index of the cursor
-        private boolean inBound;    // Cursor is within array bounds
-
-        @Override
-        public boolean hasNext() {
-            return cursor < size;
-        }
-
-        @Override
-        public T next() throws NoSuchElementException {
-            if (cursor == size) {
-                throw new NoSuchElementException("Iterated past the last element");
-            }
-            T e = data[cursor++];
-            inBound = true;
-            return e;
-        }
-
-        @Override
-        public void remove() {
-            if (!inBound) {
-                throw new IllegalStateException();
-            }
-            inBound = false;
-            AlmaList.this.remove(--cursor);
-        }
     }
 }
 
