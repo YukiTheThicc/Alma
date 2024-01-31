@@ -14,7 +14,7 @@ public final class AlmaPool {
 
     // CONSTRUCTORS
     public AlmaPool() {
-        this.idManager = new IdManager(1);
+        //this.idManager = new IdManager(1);
         this.partitionCount = 0;
         this.partitions = new AlmaList<>();
     }

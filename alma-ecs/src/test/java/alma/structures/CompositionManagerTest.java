@@ -10,9 +10,7 @@ class CompositionManagerTest {
     void testAddComponentType() {
 
         CompositionManager cm = new CompositionManager();
-        cm.addComponentType(C1.class);
-        cm.addComponentType(C2.class);
-        cm.addComponentType(C3.class);
+        System.out.println(cm.getCompositionIntHash(new Class[]{C1.class}));
     }
 
     @Test
