@@ -23,4 +23,8 @@ public class Entity {
         this.uuid = UUIDGen.generateUUID();
         this.iid = 0;
     }
+
+    // GETTERS & SETTERS
+
+    // METHODS
 }

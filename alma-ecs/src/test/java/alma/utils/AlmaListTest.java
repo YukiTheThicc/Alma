@@ -1,23 +1,25 @@
-package alma.structures;
+package alma.utils;
 
 import alma.Entity;
 import alma.TestUtils;
-import alma.utils.AlmaList;
+import alma.structures.Partition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AlmaCoreListTest {
+class AlmaListTest {
 
     private static final int DEFAULT_LIST_SIZE = 16;
     private TestEntity[] entities;
+    private final Partition mockPartition = new Partition();
 
     private class TestEntity extends Entity {
         public int value;
 
         TestEntity(int value) {
+            super(mockPartition);
             this.value = value;
         }
 
@@ -157,4 +159,6 @@ class AlmaCoreListTest {
 
         TestUtils.printTestHeader("testGrow");
     }
+
+
 }

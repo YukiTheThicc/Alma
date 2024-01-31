@@ -8,4 +8,10 @@ public final class Composition {
 
     // ATTRIBUTES
     private Class<?>[] componentTypes;
+
+    // CONSTRUCTORS
+
+    // GETTERS & SETTERS
+
+    // METHODS
 }

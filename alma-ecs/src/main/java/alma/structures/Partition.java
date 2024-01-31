@@ -18,4 +18,8 @@ public final class Partition {
     public Partition() {
 
     }
+
+    // GETTERS & SETTERS
+
+    // METHODS
 }
