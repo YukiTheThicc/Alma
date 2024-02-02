@@ -1,5 +1,7 @@
 package alma.structures;
 
+import alma.utils.IntHash;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,8 +28,10 @@ public final class CompositionManager {
     // GETTERS & SETTERS
 
     // METHODS
+
     /**
      * Maps a component class to an int
+     *
      * @param type New component class to add
      * @return Value of the new component type
      */
@@ -44,80 +48,39 @@ public final class CompositionManager {
     }
 
     /**
-     * Gets the composition that matches the component type. Lazily creates a new composition if it doesn't exist.
-     * @param component Component type to match the composition
-     * @return The matched composition
-
-    public Composition getComposition(Class<?> component) {
-        if () {
-
-        }
-    }*/
-
-    /**
      * Gets the composition that matches the component types. Lazily creates a new composition if it doesn't exist.
+     *
      * @param components List of component classes to match the composition
      * @return The matched composition
-
+     */
     public Composition getComposition(Class<?>[] components) {
-
+        return null;
     }
-
-    public IntHash getIntHash(Class<?> component) {
-
-    }*/
 
     /**
      * Generates the optimized IntHash for the component composition
+     *
      * @param components List of components to generate the IntHash
      * @return IntHash that identifies the composition matching the component list
      */
-    public IntHash getCompositionIntHash(Class<?>[] components) {
+    public IntHash getCompositionIndex(Class<?>[] components) {
 
         int length = components.length;
+        int min = Integer.MAX_VALUE;
+        int max = 0;
         boolean[] slots = new boolean[index + length + 1];              // Array of class slots
-        int min = Integer.MAX_VALUE, max = 0;
 
         for (int i = 0; i < length; i++) {
             int value = classMap.get(components[i]);
             if (slots[value]) {
                 throw new IllegalArgumentException("Slot is already occupied");
+            } else {
+                slots[value] = true;
+                registerComponentType(components[i]);
+                min = Math.min(value, min);
+                max = Math.max(value, max);
             }
-            slots[value] = true;
-            min = Math.min(value, min);
-            max = Math.max(value, max);
         }
-        return new IntHash(length);
-    }
-
-    /**
-     *
-     */
-    public class IntHash {
-
-        // ATTRIBUTES
-        private final int hashCode;
-        private final byte[] data;
-
-        // CONSTRUCTORS
-        public IntHash(int hash) {
-            this.hashCode = hash;
-            this.data = null;
-        }
-
-        // METHODS
-        public IntHash(boolean[] slots, int min, int max, int length) {
-            long result = 1;
-            int idx = 0;
-            int i = min;
-            data = new byte[length];
-            for (; i <= max; i++) {
-                if (slots[i]) {
-                    result = result * 31 + i;
-                    data[idx++] = (byte) (i ^ (i >>> 8));
-                }
-            }
-            hashCode = (int) (result ^ (result >>> 32));
-        }
+        return new IntHash(slots, min, max, length);
     }
 }
