@@ -1,6 +1,6 @@
-package api;
+package alma.api;
 
-public interface Component {
+public interface AlmaComponent {
     /*
      * Components should always just be sata structures, systems are the ones to implement functionality and process the
      * data stored in components

@@ -1,4 +1,4 @@
-package api;
+package alma.api;
 
 public interface AlmaItem {
 
