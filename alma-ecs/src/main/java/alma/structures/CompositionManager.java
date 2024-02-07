@@ -88,7 +88,7 @@ public final class CompositionManager {
     /**
      * Generates the optimized composition hash for the specified component composition
      *
-     * @param components List of components to generate the IntHash
+     * @param components List of component types to generate the IntHash
      * @return IntHash that identifies the composition matching the component list
      */
     public CompositionHash getCompositionHash(Class<?>[] components) {
@@ -100,7 +100,29 @@ public final class CompositionManager {
             if (repetitionCheck[value]) {
                 throw new IllegalArgumentException("Component repetition within one composition is not allowed");
             } else {
-                registeredComponents[i] = registerComponentType(components[i]);
+                registeredComponents[i] = value;
+                repetitionCheck[value] = true;
+            }
+        }
+        return new CompositionHash(registeredComponents);
+    }
+
+    /**
+     * Generates the optimized composition hash for the specified component composition
+     *
+     * @param components List of components to generate the IntHash
+     * @return IntHash that identifies the composition matching the component list
+     */
+    public CompositionHash getCompositionHash(AlmaComponent[] components) {
+        int length = components.length;
+        boolean[] repetitionCheck = new boolean[index + length + 1];
+        int[] registeredComponents = new int[length];
+        for (int i = 0; i < length; i++) {
+            int value = classMap.get(components[i].getClass());
+            if (repetitionCheck[value]) {
+                throw new IllegalArgumentException("Component repetition within one composition is not allowed");
+            } else {
+                registeredComponents[i] = value;
                 repetitionCheck[value] = true;
             }
         }

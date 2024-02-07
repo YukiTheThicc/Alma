@@ -13,13 +13,12 @@ class AlmaListTest {
 
     private static final int DEFAULT_LIST_SIZE = 16;
     private TestEntity[] entities;
-    private final Partition mockPartition = new Partition();
 
     private class TestEntity extends Entity {
         public int value;
 
         TestEntity(int value) {
-            super(mockPartition);
+            super();
             this.value = value;
         }
 

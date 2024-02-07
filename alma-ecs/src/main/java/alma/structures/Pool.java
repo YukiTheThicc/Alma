@@ -2,7 +2,8 @@ package alma.structures;
 
 import alma.api.AlmaCore;
 import alma.api.AlmaPool;
-import alma.utils.AlmaList;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * AlmaPool is the core of the Alma data structure. Holds a set of linked partitions and its users. The creation of
@@ -13,17 +14,19 @@ import alma.utils.AlmaList;
 public final class Pool implements AlmaPool {
 
     // ATTRIBUTES
-    private AlmaCore core;                              // Alma core that owns this pool
-    private AlmaList<Partition> partitions;             // List of partitions
-    private CompositionManager compositionManager;      // Composition manager
-    private int partitionCount;                         // Amount of partitions currently stored
+    private final AlmaCore core;                                                // Alma core that owns this pool
+    private final ConcurrentHashMap<CompositionHash, Partition> partitions;     // Partition map
+    private final CompositionManager cm;                                        // Composition manager
+    private final IdManager idManager;                                          // Manager of IDs for the pool and partitions
+    private int pCount;                                                         // Amount of partitions currently stored
 
     // CONSTRUCTORS
     public Pool(AlmaCore core, CompositionManager compositionManager) {
         this.core = core;
-        this.compositionManager = compositionManager;
-        this.partitionCount = 0;
-        this.partitions = new AlmaList<>();
+        this.partitions = new ConcurrentHashMap<>();
+        this.cm = compositionManager;
+        this.idManager = new IdManager();
+        this.pCount = 0;
     }
 
     // GETTERS & SETTERS
@@ -32,11 +35,13 @@ public final class Pool implements AlmaPool {
     }
 
     public int getPartitionCount() {
-        return partitionCount;
+        return pCount;
+    }
+
+    public IdManager getIdManager() {
+        return idManager;
     }
 
     // METHODS
-    public long createEntity() {
-        return 1L;
-    }
+
 }

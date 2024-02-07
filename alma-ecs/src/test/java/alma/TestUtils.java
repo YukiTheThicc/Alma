@@ -63,4 +63,12 @@ public class TestUtils {
                 "|" + " ".repeat(actualSpacing - (String.valueOf(actual).length() + 1) % 2) + actual + " ".repeat(actualSpacing) + "|";
         System.out.println(sb);
     }
+
+    public static String intToBinaryString(int num) {
+        return String.format("%32s", Integer.toBinaryString(num)).replace(" ","0");
+    }
+
+    public static String longToBinaryString(long num) {
+        return String.format("%64s", Long.toBinaryString(num)).replace(" ","0");
+    }
 }

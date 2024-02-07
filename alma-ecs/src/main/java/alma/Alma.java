@@ -31,7 +31,7 @@ public class Alma implements AlmaCore {
     // METHODS
     @Override
     public long createEntity() {
-        return this.pool.createEntity();
+        return 1L;
     }
 
     @Override
