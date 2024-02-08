@@ -7,18 +7,43 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class IIDManagerTest {
+class IdHandlerTest {
 
-    public IdManager IDm;
+    public IdHandler IDm;
 
     @BeforeEach
     void setUp() {
-        IDm = new IdManager();
+        IDm = new IdHandler();
     }
 
     @AfterEach
     void tearDown() {
         TestUtils.printTestEnd();
+    }
+
+    @Test
+    void basicTest() {
+        TestUtils.printTestHeader("basicTest");
+        int expectedPartitionBits = 12;
+        int expectedMaxPartitions = 4095;
+        int expectedMaxItems = 524287;
+        String expectedPartitionMask =  "01111111111110000000000000000000";
+        String expectedItemMask =       "00000000000001111111111111111111";
+        String expectedInvalidValue =   "10000000000000000000000000000000";
+        TestUtils.printTestIteration("Partition bits", expectedPartitionBits, IDm.partitionBits);
+        TestUtils.printTestIteration("Max partitions", expectedMaxPartitions, IDm.maxPartitions);
+        TestUtils.printTestIteration("Max items", expectedMaxItems, IDm.maxItemPerPartition);
+        TestUtils.printTestIteration("Partition mask", expectedPartitionMask, TestUtils.intToBinaryString(IDm.partitionMask));
+        TestUtils.printTestIteration("Item mask", expectedItemMask, TestUtils.intToBinaryString(IDm.itemMask));
+        TestUtils.printTestIteration("Invalid value", expectedInvalidValue, TestUtils.intToBinaryString(IDm.invalidValue));
+        assertAll(
+                () -> assertEquals(expectedPartitionBits, IDm.partitionBits),
+                () -> assertEquals(expectedMaxPartitions, IDm.maxPartitions),
+                () -> assertEquals(expectedMaxItems, IDm.maxItemPerPartition),
+                () -> assertEquals(expectedPartitionMask, TestUtils.intToBinaryString(IDm.partitionMask)),
+                () -> assertEquals(expectedItemMask, TestUtils.intToBinaryString(IDm.itemMask)),
+                () -> assertEquals(expectedInvalidValue, TestUtils.intToBinaryString(IDm.invalidValue))
+        );
     }
 
     @Test

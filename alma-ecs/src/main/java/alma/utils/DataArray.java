@@ -8,30 +8,31 @@ import java.util.Arrays;
  *
  * @param <T> Class to store within the list
  */
-public class AlmaList<T> {
+public class DataArray<T> {
 
+    // CONSTANTS
     private static final float GROWTH_FACTOR = 1.5f;
 
     // ATTRIBUTES
-    T[] data;                   // Actual array of data
-    protected int size = 0;     // Current amount of elements stored in the list
+    T[] data;                       // Actual array of data
+    protected int size = 0;         // Current amount of elements stored in the list
 
     // CONSTRUCTORS
-    public AlmaList() {
+    public DataArray() {
         this(64);
     }
 
     @SuppressWarnings("unchecked")
-    public AlmaList(int size) {
+    public DataArray(int size) {
         data = (T[]) Array.newInstance(Object.class, size);
     }
 
-    public AlmaList(Class<T> type) {
+    public DataArray(Class<T> type) {
         this(type, 64);
     }
 
     @SuppressWarnings("unchecked")
-    public AlmaList(Class<T> type, int size) {
+    public DataArray(Class<T> type, int size) {
         data = (T[]) Array.newInstance(type, size);
     }
 
@@ -64,7 +65,6 @@ public class AlmaList<T> {
     }
 
     // METHODS
-
     /**
      * Adds an element to the list. Grows if the list is full
      *
@@ -80,7 +80,7 @@ public class AlmaList<T> {
      *
      * @param toAdd List of elements to add
      */
-    public void addList(AlmaList<T> toAdd) {
+    public void addList(DataArray<T> toAdd) {
         for (int i = 0; i < toAdd.size; i++) {
             add(toAdd.get(i));
         }

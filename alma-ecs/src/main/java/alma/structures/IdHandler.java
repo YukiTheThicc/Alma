@@ -8,7 +8,7 @@ import java.util.Random;
  * entity localization. It also manages UUID generation allow entities to be universally identifiable between instances
  * of Alma.
  */
-public final class IdManager {
+public final class IdHandler {
 
     // CONSTANTS
     public static final int MAX_BITS = 31;                  // Max bits for an ID (31 -> signed integer)
@@ -18,26 +18,22 @@ public final class IdManager {
     public final int maxPartitions;                         // Max amount of partitions
     public final int maxItemPerPartition;                   // Max items per partition
     public final int partitionBits;                         // Bits reserved fot the partition segment
-    public final int partitionBitShift;                         // Bits reserved fot the partition segment
+    public final int partitionBitShift;                     // Bits reserved fot the partition segment
     public final int partitionMask;                         // Masks other bits so only the partition segment is visible
     public final int itemMask;                              // Masks other bits so only the item segment is visible
+    public final int invalidValue = 1 << MAX_BITS;          // Value indicating a non valid ID
 
     // CONSTRUCTORS
-    public IdManager() {
-        this.partitionBits = DEFAULT_PARTITION_BITS;
-        this.partitionBitShift = MAX_BITS - DEFAULT_PARTITION_BITS;
-        this.maxPartitions = 1 << DEFAULT_PARTITION_BITS;
-        this.maxItemPerPartition = 1 << partitionBitShift;
-        this.partitionMask = (int) ((long) Integer.MAX_VALUE << partitionBitShift);
-        this.itemMask = (1 << partitionBitShift) - 1;
+    public IdHandler() {
+        this(DEFAULT_PARTITION_BITS);
     }
 
-    public IdManager(int partitionBits) {
+    public IdHandler(int partitionBits) {
         this.partitionBits = partitionBits;
-        this.partitionBitShift = MAX_BITS - partitionBits;
-        this.maxPartitions = 1 << partitionBits;
-        this.maxItemPerPartition = 1 << partitionBitShift;
-        this.partitionMask = (int) ((long) Integer.MAX_VALUE << partitionBitShift);
+        this.partitionBitShift = (MAX_BITS - partitionBits);
+        this.maxPartitions = (1 << partitionBits) - 1;
+        this.maxItemPerPartition = (1 << partitionBitShift) - 1;
+        this.partitionMask = maxPartitions << partitionBitShift;
         this.itemMask = (1 << partitionBitShift) - 1;
     }
 

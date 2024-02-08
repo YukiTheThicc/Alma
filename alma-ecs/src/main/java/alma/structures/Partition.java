@@ -2,7 +2,9 @@ package alma.structures;
 
 import alma.Entity;
 import alma.api.AlmaComponent;
-import alma.utils.AlmaList;
+import alma.utils.IdStack;
+
+import java.util.Arrays;
 
 /**
  * A partition is a linked data structure that holds the data from a specific entity composition.
@@ -11,60 +13,47 @@ import alma.utils.AlmaList;
  */
 public final class Partition {
 
-    // ATTRIBUTES
-    private AlmaList<Entity> entities;              // Entity storage
-    private AlmaList<AlmaComponent> components;     // Component storage
-    private IdManager IIDManager;                   // ID stack for the composition
-    private Composition composition;                // Composition stored within this partition
-    private Partition next;                         // Next partition
-    private Partition previous;                     // Previous partition
-    private boolean packed;                         // Packed partition flag
+    // CONSTANTS
+    public static final int DEFAULT_PARTITION_SIZE = 1024;
+    private static final int GROWTH_FACTOR = 2;
+
+    // ATTRIBUTES - MAIN
+    private final IdHandler idHandler;
+    private final IdStack idStack;
+    private Entity[] entities;
+    private AlmaComponent[] components;
+    private final int stride;
+
+    // ATTRIBUTES - AUXILIARY
+    private Entity[] toRemove;
 
     // CONSTRUCTORS
-    public Partition(Composition composition, Partition previous, Partition next) {
-        this.entities = new AlmaList<>();
-        this.components = new AlmaList<>();
-        this.composition = composition;
-        this.next = next;
-        this.previous = previous;
-        this.packed = false;
+    public Partition() {
+        this(DEFAULT_PARTITION_SIZE);
     }
 
-    public Partition(Composition composition, Partition previous, Partition next, boolean packed) {
-        this.entities = new AlmaList<>();
-        this.components = new AlmaList<>();
-        this.composition = composition;
-        this.next = next;
-        this.previous = previous;
-        this.packed = packed;
+    public Partition(int size) {
+        this(DEFAULT_PARTITION_SIZE, 1);
     }
 
-    // GETTERS & SETTERS
-    public AlmaList<Entity> getEntities() {
-        return entities;
-    }
-
-    public AlmaList<AlmaComponent> getComponents() {
-        return components;
-    }
-
-    public Composition getComposition() {
-        return composition;
-    }
-
-    public Partition getNext() {
-        return next;
-    }
-
-    public Partition getPrevious() {
-        return previous;
-    }
-
-    public boolean isPacked() {
-        return packed;
+    public Partition(int size, int stride) {
+        this.idHandler = new IdHandler();
+        this.idStack = new IdStack(idHandler.invalidValue);
+        this.entities = new Entity[size];
+        this.components = new AlmaComponent[size * stride];
+        this.stride = stride;
     }
 
     // METHODS
+    public void addEntity() {
 
+    }
 
+    /**
+     * Grows the partition by the growth factor.
+     */
+    private void grow(int newSize) {
+        entities = Arrays.copyOf(entities, newSize);
+        components = Arrays.copyOf(components, newSize * stride);
+    }
 }

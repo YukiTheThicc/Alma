@@ -2,14 +2,13 @@ package alma.utils;
 
 import alma.Entity;
 import alma.TestUtils;
-import alma.structures.Partition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AlmaListTest {
+class DataArrayTest {
 
     private static final int DEFAULT_LIST_SIZE = 16;
     private TestEntity[] entities;
@@ -81,7 +80,7 @@ class AlmaListTest {
         int expectedSizeEmpty = 0;
         int expectedSizeMinimum = 1;
         int expectedSizeMaximum = 16;
-        AlmaList<TestEntity> list = new AlmaList<>(DEFAULT_LIST_SIZE);
+        DataArray<TestEntity> list = new DataArray<>(DEFAULT_LIST_SIZE);
 
         // Test for when list is empty
         int actualSizeEmpty = list.size();

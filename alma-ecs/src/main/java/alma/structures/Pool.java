@@ -17,7 +17,7 @@ public final class Pool implements AlmaPool {
     private final AlmaCore core;                                                // Alma core that owns this pool
     private final ConcurrentHashMap<CompositionHash, Partition> partitions;     // Partition map
     private final CompositionManager cm;                                        // Composition manager
-    private final IdManager idManager;                                          // Manager of IDs for the pool and partitions
+    private final IdHandler idHandler;                                          // Manager of IDs for the pool and partitions
     private int pCount;                                                         // Amount of partitions currently stored
 
     // CONSTRUCTORS
@@ -25,7 +25,7 @@ public final class Pool implements AlmaPool {
         this.core = core;
         this.partitions = new ConcurrentHashMap<>();
         this.cm = compositionManager;
-        this.idManager = new IdManager();
+        this.idHandler = new IdHandler();
         this.pCount = 0;
     }
 
@@ -38,8 +38,8 @@ public final class Pool implements AlmaPool {
         return pCount;
     }
 
-    public IdManager getIdManager() {
-        return idManager;
+    public IdHandler getIdManager() {
+        return idHandler;
     }
 
     // METHODS
