@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DataArrayTest {
+class AlmaListTest {
 
     private static final int DEFAULT_LIST_SIZE = 16;
     private TestEntity[] entities;
@@ -17,7 +17,7 @@ class DataArrayTest {
         public int value;
 
         TestEntity(int value) {
-            super();
+            super(value);
             this.value = value;
         }
 
@@ -80,7 +80,7 @@ class DataArrayTest {
         int expectedSizeEmpty = 0;
         int expectedSizeMinimum = 1;
         int expectedSizeMaximum = 16;
-        DataArray<TestEntity> list = new DataArray<>(DEFAULT_LIST_SIZE);
+        AlmaList<TestEntity> list = new AlmaList<>(DEFAULT_LIST_SIZE);
 
         // Test for when list is empty
         int actualSizeEmpty = list.size();

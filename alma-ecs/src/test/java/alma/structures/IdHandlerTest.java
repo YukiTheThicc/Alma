@@ -32,14 +32,14 @@ class IdHandlerTest {
         String expectedInvalidValue =   "10000000000000000000000000000000";
         TestUtils.printTestIteration("Partition bits", expectedPartitionBits, IDm.partitionBits);
         TestUtils.printTestIteration("Max partitions", expectedMaxPartitions, IDm.maxPartitions);
-        TestUtils.printTestIteration("Max items", expectedMaxItems, IDm.maxItemPerPartition);
+        TestUtils.printTestIteration("Max items", expectedMaxItems, IDm.itemsPerPartition);
         TestUtils.printTestIteration("Partition mask", expectedPartitionMask, TestUtils.intToBinaryString(IDm.partitionMask));
         TestUtils.printTestIteration("Item mask", expectedItemMask, TestUtils.intToBinaryString(IDm.itemMask));
         TestUtils.printTestIteration("Invalid value", expectedInvalidValue, TestUtils.intToBinaryString(IDm.invalidValue));
         assertAll(
                 () -> assertEquals(expectedPartitionBits, IDm.partitionBits),
                 () -> assertEquals(expectedMaxPartitions, IDm.maxPartitions),
-                () -> assertEquals(expectedMaxItems, IDm.maxItemPerPartition),
+                () -> assertEquals(expectedMaxItems, IDm.itemsPerPartition),
                 () -> assertEquals(expectedPartitionMask, TestUtils.intToBinaryString(IDm.partitionMask)),
                 () -> assertEquals(expectedItemMask, TestUtils.intToBinaryString(IDm.itemMask)),
                 () -> assertEquals(expectedInvalidValue, TestUtils.intToBinaryString(IDm.invalidValue))

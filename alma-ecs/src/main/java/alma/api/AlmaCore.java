@@ -39,4 +39,10 @@ public interface AlmaCore {
      * @param e ID of the entity to be removed
      */
     public void removeEntity(long e);
+
+    /**
+     * Adds a new listener to
+     * @param listener
+     */
+    public void addListener(AlmaListener listener);
 }

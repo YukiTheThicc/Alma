@@ -16,7 +16,7 @@ public final class IdHandler {
 
     // ATTRIBUTES
     public final int maxPartitions;                         // Max amount of partitions
-    public final int maxItemPerPartition;                   // Max items per partition
+    public final int itemsPerPartition;                   // Max items per partition
     public final int partitionBits;                         // Bits reserved fot the partition segment
     public final int partitionBitShift;                     // Bits reserved fot the partition segment
     public final int partitionMask;                         // Masks other bits so only the partition segment is visible
@@ -32,7 +32,7 @@ public final class IdHandler {
         this.partitionBits = partitionBits;
         this.partitionBitShift = (MAX_BITS - partitionBits);
         this.maxPartitions = (1 << partitionBits) - 1;
-        this.maxItemPerPartition = (1 << partitionBitShift) - 1;
+        this.itemsPerPartition = (1 << partitionBitShift) - 1;
         this.partitionMask = maxPartitions << partitionBitShift;
         this.itemMask = (1 << partitionBitShift) - 1;
     }

@@ -1,6 +1,8 @@
 package alma.structures;
 
+import alma.api.AlmaComponent;
 import alma.api.AlmaCore;
+import alma.api.AlmaModifier;
 import alma.api.AlmaPool;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,5 +45,18 @@ public final class Pool implements AlmaPool {
     }
 
     // METHODS
+    @Override
+    public int createEntity(AlmaComponent[] components) {
+        return 0;
+    }
 
+    @Override
+    public int deleteEntity(int entity) {
+        return 0;
+    }
+
+    @Override
+    public int addModifier(AlmaModifier modifier) {
+        return 0;
+    }
 }

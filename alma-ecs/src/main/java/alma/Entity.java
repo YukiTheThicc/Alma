@@ -13,8 +13,8 @@ public class Entity {
     private final int iid;
 
     // CONSTRUCTORS
-    public Entity() {
-        this.iid = 0;
+    public Entity(int iid) {
+        this.iid = iid;
     }
 
     // GETTERS & SETTERS

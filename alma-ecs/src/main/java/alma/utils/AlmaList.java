@@ -8,7 +8,7 @@ import java.util.Arrays;
  *
  * @param <T> Class to store within the list
  */
-public class DataArray<T> {
+public class AlmaList<T> {
 
     // CONSTANTS
     private static final float GROWTH_FACTOR = 1.5f;
@@ -18,21 +18,21 @@ public class DataArray<T> {
     protected int size = 0;         // Current amount of elements stored in the list
 
     // CONSTRUCTORS
-    public DataArray() {
+    public AlmaList() {
         this(64);
     }
 
     @SuppressWarnings("unchecked")
-    public DataArray(int size) {
+    public AlmaList(int size) {
         data = (T[]) Array.newInstance(Object.class, size);
     }
 
-    public DataArray(Class<T> type) {
+    public AlmaList(Class<T> type) {
         this(type, 64);
     }
 
     @SuppressWarnings("unchecked")
-    public DataArray(Class<T> type, int size) {
+    public AlmaList(Class<T> type, int size) {
         data = (T[]) Array.newInstance(type, size);
     }
 
@@ -80,7 +80,7 @@ public class DataArray<T> {
      *
      * @param toAdd List of elements to add
      */
-    public void addList(DataArray<T> toAdd) {
+    public void addList(AlmaList<T> toAdd) {
         for (int i = 0; i < toAdd.size; i++) {
             add(toAdd.get(i));
         }

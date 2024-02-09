@@ -4,8 +4,6 @@ import alma.Entity;
 import alma.api.AlmaComponent;
 import alma.utils.IdStack;
 
-import java.util.Arrays;
-
 /**
  * A partition is a linked data structure that holds the data from a specific entity composition.
  *
@@ -13,47 +11,88 @@ import java.util.Arrays;
  */
 public final class Partition {
 
-    // CONSTANTS
-    public static final int DEFAULT_PARTITION_SIZE = 1024;
-    private static final int GROWTH_FACTOR = 2;
-
     // ATTRIBUTES - MAIN
-    private final IdHandler idHandler;
-    private final IdStack idStack;
-    private Entity[] entities;
-    private AlmaComponent[] components;
-    private final int stride;
+    private final IdHandler idHandler;                  // IdHandler for the partition
+    private final IdStack idStack;                      // IdStack of reusable IDs for the partition
+    private final Entity[] entitySlots;                 // List of entities handled by the partition
+    private final AlmaComponent[] components;           // List of components handled by the partition
+    private final Composition composition;              // Composition stored within this partition
+    private final int stride;                           // Stride of the composition stored in the partition
+    private int index;                                  // Current entity index
+    private boolean isDirty;                            // Flag for dirty partition
 
     // ATTRIBUTES - AUXILIARY
-    private Entity[] toRemove;
+    private final IdStack toRemove;
 
-    // CONSTRUCTORS
-    public Partition() {
-        this(DEFAULT_PARTITION_SIZE);
+    public Partition(IdHandler idHandler, Composition composition) {
+        this(idHandler, composition, 1);
     }
 
-    public Partition(int size) {
-        this(DEFAULT_PARTITION_SIZE, 1);
-    }
-
-    public Partition(int size, int stride) {
-        this.idHandler = new IdHandler();
+    public Partition(IdHandler idHandler, Composition composition, int stride) {
+        this.idHandler = idHandler;
         this.idStack = new IdStack(idHandler.invalidValue);
-        this.entities = new Entity[size];
-        this.components = new AlmaComponent[size * stride];
-        this.stride = stride;
+        this.entitySlots = new Entity[idHandler.itemsPerPartition];
+        this.toRemove = new IdStack(idHandler.invalidValue);
+        this.components = new AlmaComponent[idHandler.itemsPerPartition * stride];
+        this.composition = composition;
+        this.stride = composition.getSize();
+        this.index = -1;
+        this.isDirty = false;
+    }
+
+    // GETTERS
+    public Entity[] getEntitySlots() {
+        return entitySlots;
+    }
+
+    public AlmaComponent[] getComponents() {
+        return components;
+    }
+
+    public Composition getComposition() {
+        return composition;
+    }
+
+    public int getStride() {
+        return stride;
+    }
+
+    public boolean isDirty() {
+        return isDirty;
     }
 
     // METHODS
-    public void addEntity() {
+    public void addEntity(Entity newEntity, AlmaComponent[] components) {
+        int pos = idHandler.getItemId(newEntity.getIid());
+    }
 
+    public void removeEntity(int entity) {
+        toRemove.push(entity);
+        isDirty = true;
+    }
+
+    public AlmaComponent[] retrieveEntityComponent(int entity) {
+        AlmaComponent[] entityComponents = new AlmaComponent[stride];
+        int first = idHandler.getItemId(entity);
+        System.arraycopy(components, first, entityComponents, 0, stride);
+        return entityComponents;
     }
 
     /**
-     * Grows the partition by the growth factor.
+     * Updates the partition lists and
      */
-    private void grow(int newSize) {
-        entities = Arrays.copyOf(entities, newSize);
-        components = Arrays.copyOf(components, newSize * stride);
+    public void flush() {
+        if (isDirty) {
+            int idToRemove = toRemove.pop();
+            while(idToRemove != idHandler.invalidValue) {
+                int pos = idHandler.getItemId(idToRemove);
+                entitySlots[pos] = entitySlots[index--];
+                for (int i = pos; i < pos + stride; i++) {
+                    components[i] = null;
+                }
+                idStack.push(idToRemove);
+                idToRemove = toRemove.pop();
+            }
+        }
     }
 }
