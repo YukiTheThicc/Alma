@@ -17,11 +17,9 @@ public class CompositionHash {
     private final byte[] compTypes;                 // Array of byte values for the component types of this composition
 
     // CONSTRUCTORS
-
     /**
      * Calculates a hash for a composition
-     *
-     * @param cTypes
+     * @param cTypes Array of class int values to calculate the hash for the composition
      */
     public CompositionHash(int[] cTypes) {
         long result = 1;
