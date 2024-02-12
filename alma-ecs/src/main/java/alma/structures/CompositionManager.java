@@ -3,6 +3,7 @@ package alma.structures;
 import alma.api.AlmaComponent;
 import alma.utils.AlmaList;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,7 +27,6 @@ public final class CompositionManager {
     // Used to map each composition hash to its composition
     private final Map<CompositionHash, Composition> compositions = new ConcurrentHashMap<>();
     // Cache for storing what compositions are contained within others
-    private final Map<CompositionHash, AlmaList<Composition>> compositionCache = new ConcurrentHashMap<>();
     private final Map<Integer, AlmaList<Composition>> classCompositions = new ConcurrentHashMap<>();
 
     // CONSTRUCTORS
@@ -44,16 +44,48 @@ public final class CompositionManager {
     }
 
     // METHODS
+
+    /**
+     * Internal function to get the classes from a list of component instances.
+     *
+     * @param components Array of components instances
+     * @return Array of component types
+     */
     private Class<?>[] getComponentClasses(AlmaComponent[] components) {
         Class<?>[] componentTypes = new Class<?>[components.length];
-        for(int i = 0; i < components.length; i++) componentTypes[i] = components[i].getClass();
+        for (int i = 0; i < components.length; i++) componentTypes[i] = components[i].getClass();
         return componentTypes;
+    }
+
+    /**
+     * Use Bubble sort to order by index the array of classes.
+     *
+     * @param types Array of component classes
+     * @return A sorted copy of the array
+     */
+    private Class<?>[] sortCompositionClasses(Class<?>[] types) {
+        int length = types.length;
+        Class<?>[] sorted = Arrays.copyOf(types, length);
+        Class<?> aux;
+        for (int i = 1; i < length - 1; i++) {
+            for (int j = 0; j < length - i; j++) {
+                if (classMap.get(sorted[j]) > classMap.get(sorted[j + 1])) {
+                    aux = sorted[j];
+                    sorted[j] = sorted[j + 1];
+                    sorted[j + 1] = aux;
+                }
+            }
+        }
+        return sorted;
     }
 
     /**
      * Gets the composition that matches the component types. Lazily creates a new composition if it doesn't exist. If
      * the composition didn't exist, then the classCompositions map will be updated and the new composition will be
      * added to the list of compositions with that class.
+     * <p>
+     * Components array is ordered before creating the Composition. Compositions should not be created randomly at runtime
+     * so the overall performance impact of the Bubble sort should not be relevant.
      *
      * @param components List of component classes to match the composition
      * @return The matched composition
@@ -63,41 +95,32 @@ public final class CompositionManager {
         Composition c = compositions.get(cHash);
         if (c == null) {
             // Lazily create the composition corresponding to the components
-            c = new Composition(components);
+            c = new Composition(sortCompositionClasses(components));
             compositions.put(cHash, c);
-
+            for (Class<?> type : components) {
+                // Lazily create the list of compositions that the type is in
+                if (classCompositions.get(classMap.get(type)) == null) {
+                    classCompositions.put(classMap.get(type), new AlmaList<>());
+                }
+                classCompositions.get(classMap.get(type)).add(c);
+            }
         }
         return c;
     }
 
     /**
-     * Gets the composition that matches the component instances.
+     * Gets the composition that matches the component instances. Lazily creates a new composition if it doesn't exist. If
+     * the composition didn't exist, then the classCompositions map will be updated and the new composition will be
+     * added to the list of compositions with that class.
+     * <p>
+     * Components array is ordered before creating the Composition. Compositions should not be created randomly at runtime
+     * so the overall performance impact of the Bubble sort should not be relevant.
      *
      * @param components List of component classes to match the composition
      * @return The matched composition
      */
     public Composition getComposition(AlmaComponent[] components) {
         return getComposition(getComponentClasses(components));
-    }
-
-    /**
-     * Gets other compositions that contains the matched composition.
-     * @param types
-     * @return
-     */
-    public Composition[] getCompositionsWithComponents(Class<?>[] types) {
-        CompositionHash hash = getCompositionHash(types);
-        AlmaList<Composition> cachedCompositions = compositionCache.get(hash);
-        // Lazily create the list of cached compositions for the matched composition
-        if (cachedCompositions == null) {
-            cachedCompositions = new AlmaList<>();
-            compositionCache.put(hash, cachedCompositions);
-        }
-        return null;
-    }
-
-    public Composition[] getCompositionsWithComponents(AlmaComponent[] components) {
-        return getCompositionsWithComponents(getComponentClasses(components));
     }
 
     /**
@@ -142,5 +165,18 @@ public final class CompositionManager {
             }
         }
         return new CompositionHash(registeredComponents);
+    }
+
+    /**
+     * Gets the list of compositions that contain the passed type.
+     *
+     * @param type Component type.
+     * @return The not null list of compositions that contain the type
+     */
+    public AlmaList<Composition> getCompositionsWithClass(Class<?> type) {
+        // Lazily create the list of compositions if it was not instanced
+        int classValue = classMap.get(type);
+        if (classCompositions.get(classValue) == null) classCompositions.put(classValue, new AlmaList<>());
+        return classCompositions.get(classValue);
     }
 }

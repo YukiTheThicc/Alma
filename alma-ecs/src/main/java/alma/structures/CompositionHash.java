@@ -18,7 +18,7 @@ public class CompositionHash {
 
     // CONSTRUCTORS
     /**
-     * Calculates a hash for a composition
+     * Calculates a hash for a composition.
      * @param cTypes Array of class int values to calculate the hash for the composition
      */
     public CompositionHash(int[] cTypes) {

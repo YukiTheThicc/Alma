@@ -2,6 +2,7 @@ package alma.structures;
 
 import alma.TestUtils;
 import alma.api.AlmaComponent;
+import alma.utils.AlmaList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,10 +74,18 @@ class CompositionManagerTest {
         TestUtils.printTestHeader("getCompositionClassTest");
         // Test if manually created composition has same components as composition handled by the manager
         CompositionManager cm = new CompositionManager();
-        Composition expectedEquals = new Composition(new Class[]{C3.class, C4.class});
-        Composition actualEquals = cm.getComposition(new Class[]{C3.class, C4.class});
-        TestUtils.printTestIteration("Composition", expectedEquals, actualEquals);
-        assertArrayEquals(expectedEquals.getComponentTypes(), actualEquals.getComponentTypes());
+        Composition expectedComposition = new Composition(new Class[]{C3.class, C4.class});
+        Composition actualComposition = cm.getComposition(new Class[]{C3.class, C4.class});
+        Composition secondCompositionC3 = cm.getComposition(new Class[]{C3.class, C2.class});
+        AlmaList<Composition> expectedClassCompositions = new AlmaList<>();
+        expectedClassCompositions.add(expectedComposition);
+        expectedClassCompositions.add(secondCompositionC3);
+        expectedClassCompositions.add(new Composition(new Class[]{C1.class, C2.class}));
+        AlmaList<Composition> actualClassCompositions = cm.getCompositionsWithClass(C3.class);
+        TestUtils.printTestIteration("Composition", expectedComposition, actualComposition);
+        TestUtils.printTestIteration("Class compositions", 2, actualClassCompositions.size());
+        assertEquals(actualComposition.getComponentTypes(), actualComposition.getComponentTypes());
+        assertEquals(2, actualClassCompositions.size());
     }
 
     @Test
@@ -89,10 +98,5 @@ class CompositionManagerTest {
         Composition actualEquals = cm.getComposition(new AlmaComponent[]{new C3(), new C4()});
         TestUtils.printTestIteration("Composition", expectedEquals, actualEquals);
         assertArrayEquals(expectedEquals.getComponentTypes(), actualEquals.getComponentTypes());
-    }
-
-    @Test
-    public void getCompositionHashTest() {
-
     }
 }
