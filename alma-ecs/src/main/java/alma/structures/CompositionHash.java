@@ -17,17 +17,25 @@ public class CompositionHash {
     private final byte[] compTypes;                 // Array of byte values for the component types of this composition
 
     // CONSTRUCTORS
+
     /**
-     * Calculates a hash for a composition.
-     * @param cTypes Array of class int values to calculate the hash for the composition
+     * Calculates the hash for a composition based on the class slots that the composition contains. This is done to
+     * ensure that the order of components is not relevant when calculating the hash value for a component array.
+     * components remain irrelevant when calculating a composition hash.
+     * @param classSlots Array of booleans representing the class slots used by this composition
+     * @param begin Minimum class index of the components for the composition
+     * @param end Maximum class index of the components for the composition
+     * @param size Amount of components for the composition
      */
-    public CompositionHash(int[] cTypes) {
+    public CompositionHash(boolean[] classSlots, int begin, int end, int size) {
         long result = 1;
-        int length = cTypes.length;
-        compTypes = new byte[length];
-        for (int i = 0; i < length; i++) {
-            result = result * HASH_FACTOR + cTypes[i];
-            compTypes[i] = (byte) cTypes[i];
+        int index = 0;
+        compTypes = new byte[size];
+        for (int i = begin; i <= end; i++) {
+            if (classSlots[i]) {
+                result = result * HASH_FACTOR + i;
+                compTypes[index++] = (byte) (i ^ (i >>> 8));
+            }
         }
         hashCode = (int) (result ^ (result >>> 32));
     }

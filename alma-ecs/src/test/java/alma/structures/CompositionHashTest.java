@@ -23,54 +23,34 @@ class CompositionHashTest {
     void hashCreation() {
         TestUtils.printTestHeader("hashCreation");
         long expectedHashE = 1;
-        long expectedHashPF = 1;
-        long expectedHashO = 1;
-        int[] aux = new int[] {1, 2, 3};
-        for (int i : aux) expectedHashPF = expectedHashPF * CompositionHash.HASH_FACTOR + i;
-        aux = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        for (int i : aux) expectedHashO = expectedHashO * CompositionHash.HASH_FACTOR + i;
-        int finalExpectedHashPF = (int) (expectedHashPF ^ (expectedHashPF >>> 32));
-        int finalExpectedHashO = (int) (expectedHashO ^ (expectedHashO >>> 32));
+        long expectedHashPF = 30817;
+        long expectedHashO = 986147;
 
-        CompositionHash actualE = new CompositionHash(new int[] {});
-        CompositionHash actualPF = new CompositionHash(new int[] {1, 2, 3});
-        CompositionHash actualO = new CompositionHash(new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        CompositionHash actualE = new CompositionHash(new boolean[] {false, false}, 1 ,1, 0);
+        CompositionHash actualPF = new CompositionHash(new boolean[] {false, true, true, true}, 1 ,3, 3);
+        CompositionHash actualO = new CompositionHash(new boolean[] {false, false, true, true, false, true, true}, 2 ,6, 4);
         TestUtils.printTestIteration("Empty hash", expectedHashE, actualE.hashCode());
-        TestUtils.printTestIteration("Partially filled", finalExpectedHashPF, actualPF.hashCode());
-        TestUtils.printTestIteration("Overflowed", finalExpectedHashO, actualO.hashCode());
+        TestUtils.printTestIteration("Starts on 2", expectedHashPF, actualPF.hashCode());
+        TestUtils.printTestIteration("Has 'holes'", expectedHashO, actualO.hashCode());
         assertAll(
                 () -> assertEquals(expectedHashE, actualE.hashCode()),
-                () -> assertEquals(finalExpectedHashPF, actualPF.hashCode()),
-                () -> assertEquals(finalExpectedHashO, actualO.hashCode())
+                () -> assertEquals(expectedHashPF, actualPF.hashCode()),
+                () -> assertEquals(expectedHashO, actualO.hashCode())
         );
     }
 
     @Test
     void testTestEquals() {
         TestUtils.printTestHeader("testTestEquals");
-        long expectedHashEquals = 1;
-        long expectedHashNotEquals = 1;
-        long expectedHashEqualsUnordered = 1;
-        int[] aux = new int[] {1, 2, 3};
-        for (int i : aux) expectedHashEquals = expectedHashEquals * CompositionHash.HASH_FACTOR + i;
-        aux = new int[] {1, 2};
-        for (int i : aux) expectedHashNotEquals = expectedHashNotEquals * CompositionHash.HASH_FACTOR + i;
-        aux = new int[] {1, 2, 3, 4, 5};
-        for (int i : aux) expectedHashEqualsUnordered = expectedHashEqualsUnordered * CompositionHash.HASH_FACTOR + i;
-        int finalExpectedHashPF = (int) (expectedHashEquals ^ (expectedHashEquals >>> 32));
-        int finalExpectedHashO = (int) (expectedHashNotEquals ^ (expectedHashNotEquals >>> 32));
-        int finalExpectedHashU = (int) (expectedHashEqualsUnordered ^ (expectedHashEqualsUnordered >>> 32));
+        long expectedHashEquals = 994;
 
-        CompositionHash actualEquals = new CompositionHash(new int[] {1, 2, 3});
-        CompositionHash actualNotEquals = new CompositionHash(new int[] {1, 2, 3, 4, 5});
-        CompositionHash actualEqualsUnordered = new CompositionHash(new int[] {4, 2, 5, 1, 3});
-        TestUtils.printTestIteration("Empty hash", expectedHashEquals, actualEquals.hashCode());
-        TestUtils.printTestIteration("Partially filled", finalExpectedHashO, actualNotEquals.hashCode());
-        TestUtils.printTestIteration("Different order", finalExpectedHashU, actualEqualsUnordered.hashCode());
+        CompositionHash actualEquals = new CompositionHash(new boolean[] {false, true, true}, 1 ,2, 2);
+        CompositionHash actualNotEquals =  new CompositionHash(new boolean[] {false}, 0 ,0, 0);
+        TestUtils.printTestIteration("Equals", expectedHashEquals, actualEquals.hashCode());
+        TestUtils.printTestIteration("Not equals", actualEquals.hashCode(), actualNotEquals.hashCode());
         assertAll(
-                () -> assertEquals(finalExpectedHashPF, actualEquals.hashCode()),
-                () -> assertNotEquals(finalExpectedHashO, actualNotEquals.hashCode()),
-                () -> assertNotEquals(finalExpectedHashU, actualEqualsUnordered.hashCode())
+                () -> assertEquals(expectedHashEquals, actualEquals.hashCode()),
+                () -> assertNotEquals(actualEquals.hashCode(), actualNotEquals.hashCode())
         );
     }
 }

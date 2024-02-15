@@ -3,7 +3,6 @@ package alma.structures;
 import alma.api.AlmaComponent;
 import alma.utils.AlmaList;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,8 +25,8 @@ public final class CompositionManager {
     };
     // Used to map each composition hash to its composition
     private final Map<CompositionHash, Composition> compositions = new ConcurrentHashMap<>();
-    // Cache for storing what compositions are contained within others
-    private final Map<Integer, AlmaList<Composition>> classCompositions = new ConcurrentHashMap<>();
+    // Composition tree
+    private final Map<Integer, AlmaList<Composition>> cTree = new ConcurrentHashMap<>();
 
     // CONSTRUCTORS
     public CompositionManager() {
@@ -37,10 +36,6 @@ public final class CompositionManager {
     // GETTERS & SETTERS
     public int getIndex() {
         return index;
-    }
-
-    public Composition[] getCompositions() {
-        return compositions.values().toArray(new Composition[0]);
     }
 
     // METHODS
@@ -55,28 +50,6 @@ public final class CompositionManager {
         Class<?>[] componentTypes = new Class<?>[components.length];
         for (int i = 0; i < components.length; i++) componentTypes[i] = components[i].getClass();
         return componentTypes;
-    }
-
-    /**
-     * Use Bubble sort to order by index the array of classes.
-     *
-     * @param types Array of component classes
-     * @return A sorted copy of the array
-     */
-    private Class<?>[] sortCompositionClasses(Class<?>[] types) {
-        int length = types.length;
-        Class<?>[] sorted = Arrays.copyOf(types, length);
-        Class<?> aux;
-        for (int i = 1; i < length - 1; i++) {
-            for (int j = 0; j < length - i; j++) {
-                if (classMap.get(sorted[j]) > classMap.get(sorted[j + 1])) {
-                    aux = sorted[j];
-                    sorted[j] = sorted[j + 1];
-                    sorted[j + 1] = aux;
-                }
-            }
-        }
-        return sorted;
     }
 
     /**
@@ -95,14 +68,17 @@ public final class CompositionManager {
         Composition c = compositions.get(cHash);
         if (c == null) {
             // Lazily create the composition corresponding to the components
-            c = new Composition(sortCompositionClasses(components));
+            c = new Composition(components);
             compositions.put(cHash, c);
             for (Class<?> type : components) {
-                // Lazily create the list of compositions that the type is in
-                if (classCompositions.get(classMap.get(type)) == null) {
-                    classCompositions.put(classMap.get(type), new AlmaList<>());
+                // Add composition to list of compositions that contain this class
+                AlmaList<Composition> cList = cTree.get(classMap.get(type));
+                if (cList == null) {
+                    // Lazily create the list if did not exist previously
+                    cList = new AlmaList<>();
+                    cTree.put(classMap.get(type), cList);
                 }
-                classCompositions.get(classMap.get(type)).add(c);
+                cList.add(c);
             }
         }
         return c;
@@ -124,25 +100,27 @@ public final class CompositionManager {
     }
 
     /**
-     * Generates the optimized composition hash for the specified component composition
+     * Generates the optimized composition hash for the specified component composition. Uses component slots based on
      *
      * @param components List of component types to generate the IntHash
      * @return IntHash that identifies the composition matching the component list
      */
     public CompositionHash getCompositionHash(Class<?>[] components) {
         int length = components.length;
-        boolean[] repetitionCheck = new boolean[index + length + 1];
-        int[] registeredComponents = new int[length];
-        for (int i = 0; i < length; i++) {
-            int value = classMap.get(components[i]);
-            if (repetitionCheck[value]) {
+        boolean[] classSlots = new boolean[index + length + 1];
+        int begin = Integer.MAX_VALUE;
+        int end = 0;
+        for (Class<?> component : components) {
+            int value = classMap.get(component);
+            if (classSlots[value]) {
                 throw new IllegalArgumentException("Component types can't repeat within one composition is not allowed");
             } else {
-                registeredComponents[i] = value;
-                repetitionCheck[value] = true;
+                classSlots[value] = true;
             }
+            begin = Math.min(value, begin);
+            end = Math.max(value, end);
         }
-        return new CompositionHash(registeredComponents);
+        return new CompositionHash(classSlots, begin, end, length);
     }
 
     /**
@@ -152,31 +130,28 @@ public final class CompositionManager {
      * @return IntHash that identifies the composition matching the component list
      */
     public CompositionHash getCompositionHash(AlmaComponent[] components) {
-        int length = components.length;
-        boolean[] repetitionCheck = new boolean[index + length + 1];
-        int[] registeredComponents = new int[length];
-        for (int i = 0; i < length; i++) {
-            int value = classMap.get(components[i].getClass());
-            if (repetitionCheck[value]) {
-                throw new IllegalArgumentException("Component repetition within one composition is not allowed");
-            } else {
-                registeredComponents[i] = value;
-                repetitionCheck[value] = true;
-            }
-        }
-        return new CompositionHash(registeredComponents);
+        return getCompositionHash(getComponentClasses(components));
     }
 
     /**
-     * Gets the list of compositions that contain the passed type.
-     *
-     * @param type Component type.
-     * @return The not null list of compositions that contain the type
+     * Commodity method to find compositions with instances of the passed component
+     * @param components
+     * @return
      */
-    public AlmaList<Composition> getCompositionsWithClass(Class<?> type) {
-        // Lazily create the list of compositions if it was not instanced
-        int classValue = classMap.get(type);
-        if (classCompositions.get(classValue) == null) classCompositions.put(classValue, new AlmaList<>());
-        return classCompositions.get(classValue);
+    public AlmaList<Composition> getCompositionsWithTypes(AlmaComponent[] components) {
+
+    }
+
+    /**
+     * Gets the compositions that include at least one of the types of components
+     * @param components
+     * @return
+     */
+    public AlmaList<Composition> getCompositionsWithTypes(Class<?>[] components) {
+
+    }
+
+    public AlmaList<Composition> getCompositionsWithTypesExclusive(AlmaComponent[] components) {
+        return null;
     }
 }
