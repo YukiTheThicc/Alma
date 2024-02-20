@@ -1,4 +1,4 @@
-package alma.utils;
+package alma;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

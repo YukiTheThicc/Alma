@@ -1,5 +1,6 @@
 package alma.structures;
 
+import alma.CompositionHash;
 import alma.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

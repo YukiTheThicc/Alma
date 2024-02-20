@@ -5,9 +5,6 @@ import alma.api.AlmaComponent;
 import alma.api.AlmaListener;
 import alma.events.AlmaEvent;
 import alma.events.AlmaEventType;
-import alma.structures.Pool;
-import alma.structures.CompositionManager;
-import alma.utils.AlmaList;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,25 +15,23 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Santiago Barreiro
  */
-public class Alma implements AlmaCore {
+public final class Alma implements AlmaCore {
 
     // ATTRIBUTES
-    private final Pool pool;
     private final CompositionManager compositionManager;
+    private final ConcurrentHashMap<CompositionHash, Partition> partitions;     // Partition map
+    private final IdHandler idHandler;                                          // Manager of IDs for the pool and partitions
+    private int pCount;                                                         // Amount of partitions currently stored
     private final Map<AlmaEventType, AlmaList<AlmaListener>> listeners;
     private final AlmaList<AlmaEvent> events;
 
     // CONSTRUCTORS
     public Alma() {
         this.compositionManager = new CompositionManager();
-        this.pool = new Pool(this, compositionManager);
+        this.partitions = new ConcurrentHashMap<>();
+        this.idHandler = new IdHandler();
         this.listeners = new ConcurrentHashMap<>();
         this.events = new AlmaList<>();
-    }
-
-    // GETTERS & SETTERS
-    public CompositionManager getCompositionManager() {
-        return compositionManager;
     }
 
     // METHODS

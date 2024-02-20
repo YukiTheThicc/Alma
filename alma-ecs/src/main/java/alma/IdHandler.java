@@ -1,4 +1,4 @@
-package alma.structures;
+package alma;
 
 import java.time.Instant;
 import java.util.Random;
@@ -12,11 +12,11 @@ public final class IdHandler {
 
     // CONSTANTS
     public static final int MAX_BITS = 31;                  // Max bits for an ID (31 -> signed integer)
-    public static final int DEFAULT_PARTITION_BITS = 12;    // How many bits are reserved for the partition identification
+    public static final int DEFAULT_PARTITION_BITS = 13;    // How many bits are reserved for the partition identification
 
     // ATTRIBUTES
     public final int maxPartitions;                         // Max amount of partitions
-    public final int itemsPerPartition;                   // Max items per partition
+    public final int itemsPerPartition;                     // Max items per partition
     public final int partitionBits;                         // Bits reserved fot the partition segment
     public final int partitionBitShift;                     // Bits reserved fot the partition segment
     public final int partitionMask;                         // Masks other bits so only the partition segment is visible

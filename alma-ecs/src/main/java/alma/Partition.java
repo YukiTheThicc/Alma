@@ -1,8 +1,6 @@
-package alma.structures;
+package alma;
 
-import alma.Entity;
 import alma.api.AlmaComponent;
-import alma.utils.IdStack;
 
 /**
  * A partition is a linked data structure that holds the data from a specific entity composition.
@@ -14,7 +12,7 @@ public final class Partition {
     // ATTRIBUTES - MAIN
     private final IdHandler idHandler;                  // IdHandler for the partition
     private final IdStack idStack;                      // IdStack of reusable IDs for the partition
-    private final Entity[] entitySlots;                 // List of entities handled by the partition
+    private final int[] entitySlots;                    // List of entities handled by the partition
     private final AlmaComponent[] components;           // List of components handled by the partition
     private final Composition composition;              // Composition stored within this partition
     private final int stride;                           // Stride of the composition stored in the partition
@@ -31,7 +29,7 @@ public final class Partition {
     public Partition(IdHandler idHandler, Composition composition, int stride) {
         this.idHandler = idHandler;
         this.idStack = new IdStack(idHandler.invalidValue);
-        this.entitySlots = new Entity[idHandler.itemsPerPartition];
+        this.entitySlots = new int[idHandler.itemsPerPartition];
         this.toRemove = new IdStack(idHandler.invalidValue);
         this.components = new AlmaComponent[idHandler.itemsPerPartition * stride];
         this.composition = composition;
@@ -41,7 +39,7 @@ public final class Partition {
     }
 
     // GETTERS
-    public Entity[] getEntitySlots() {
+    public int[] getEntitySlots() {
         return entitySlots;
     }
 
@@ -74,7 +72,7 @@ public final class Partition {
     public AlmaComponent[] retrieveEntityComponent(int entity) {
         AlmaComponent[] entityComponents = new AlmaComponent[stride];
         int first = idHandler.getItemId(entity);
-        System.arraycopy(components, first, entityComponents, 0, stride);
+        java.lang.System.arraycopy(components, first, entityComponents, 0, stride);
         return entityComponents;
     }
 

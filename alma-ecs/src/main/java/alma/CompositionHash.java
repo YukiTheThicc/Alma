@@ -1,4 +1,4 @@
-package alma.structures;
+package alma;
 
 import java.util.Arrays;
 
@@ -7,7 +7,7 @@ import java.util.Arrays;
  *
  * @author Santiago Barreiro
  */
-public class CompositionHash {
+public final class CompositionHash {
 
     // CONSTANTS
     public static final int HASH_FACTOR = 31;       // Hash factor to obtain the hash from

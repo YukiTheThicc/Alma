@@ -1,12 +1,12 @@
 package alma.structures;
 
-import alma.TestUtils;
+import alma.Composition;
+import alma.IdHandler;
+import alma.Partition;
 import alma.api.AlmaComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class PartitionTest {
 
