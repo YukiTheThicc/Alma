@@ -37,6 +37,7 @@ public class AlmaList<T> {
     }
 
     // GETTERS & SETTERS
+
     /**
      * Gets the current size of the list
      *
@@ -65,6 +66,16 @@ public class AlmaList<T> {
     }
 
     // METHODS
+
+    /**
+     * Changes the size of the list. Usually to increase it.
+     *
+     * @param newSize New size of the list.
+     */
+    private void changeSize(int newSize) {
+        data = Arrays.copyOf(data, newSize);
+    }
+
     /**
      * Adds an element to the list. Grows if the list is full
      *
@@ -126,7 +137,7 @@ public class AlmaList<T> {
      * @return Element within the specified index. Null if there is no element in that index
      */
     public T get(int i) {
-        if (i <= data.length) {
+        if (i >= data.length) {
             changeSize((int) Math.max(size * GROWTH_FACTOR, i * GROWTH_FACTOR));
         }
         return data[i];
@@ -139,9 +150,10 @@ public class AlmaList<T> {
      * @param e Element to set in the specified index
      */
     public void set(int i, T e) {
-        if (size == data.length) {
+        if (i >= data.length) {
             changeSize((int) Math.max(size * GROWTH_FACTOR, i * GROWTH_FACTOR));
         }
+
         data[i] = e;
     }
 
@@ -158,15 +170,6 @@ public class AlmaList<T> {
             }
         }
         return false;
-    }
-
-    /**
-     * Changes the size of the list. Usually to increase it.
-     *
-     * @param newSize New size of the list.
-     */
-    public void changeSize(int newSize) {
-        data = Arrays.copyOf(data, newSize);
     }
 
     @Override

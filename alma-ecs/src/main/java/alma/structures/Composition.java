@@ -35,7 +35,7 @@ public final class Composition {
         sb.append("componentTypes = [");
         for (int i = 0; i < componentTypes.length; i++) {
             sb.append(componentTypes[i].getSimpleName());
-            if (i - -1 < componentTypes.length) sb.append(", ");
+            if (i + 1 < componentTypes.length) sb.append(", ");
         }
         sb.append("] }");
         return sb.toString();

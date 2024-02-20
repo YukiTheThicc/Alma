@@ -13,7 +13,7 @@ class AlmaListTest {
     private static final int DEFAULT_LIST_SIZE = 16;
     private TestEntity[] entities;
 
-    private class TestEntity extends Entity {
+    private static class TestEntity extends Entity {
         public int value;
 
         TestEntity(int value) {
@@ -71,11 +71,11 @@ class AlmaListTest {
     }
 
     @Test
-    void testSize() {
+    void testAdd() {
         /*
          * Test if the size is correct.
          */
-        TestUtils.printTestHeader("testSize");
+        TestUtils.printTestHeader("testAdd");
 
         int expectedSizeEmpty = 0;
         int expectedSizeMinimum = 1;
@@ -108,55 +108,110 @@ class AlmaListTest {
     @Test
     void testMaxSize() {
         TestUtils.printTestHeader("testMaxSize");
+
+        int expected = 128;
+        int expectedDefault = 64;
+        AlmaList<TestEntity> test = new AlmaList<>(128);
+        AlmaList<TestEntity> testDefault = new AlmaList<>();
+        TestUtils.printTestIteration("128", expected, test.maxSize());
+        TestUtils.printTestIteration("Default", expectedDefault, testDefault.maxSize());
+        assertEquals(expected, test.maxSize());
+        assertEquals(expectedDefault, testDefault.maxSize());
     }
 
     @Test
     void testIsEmpty() {
         TestUtils.printTestHeader("testIsEmpty");
-    }
-
-    @Test
-    void testAdd() {
-        TestUtils.printTestHeader("testAdd");
+        AlmaList<TestEntity> testEmpty = new AlmaList<>();
+        AlmaList<TestEntity> testFilled = new AlmaList<>();
+        testFilled.add(new TestEntity(0));
+        TestUtils.printTestIteration("128", true, testEmpty.isEmpty());
+        TestUtils.printTestIteration("Default", false, testFilled.isEmpty());
+        assertTrue(testEmpty.isEmpty());
+        assertFalse(testFilled.isEmpty());
     }
 
     @Test
     void testAddList() {
         TestUtils.printTestHeader("testAddList");
+        int expectedSize = 5;
+        TestEntity expectedPos4 = entities[4];
+        AlmaList<TestEntity> test = new AlmaList<>();
+        test.add(entities[0]);
+        test.add(entities[1]);
+        AlmaList<TestEntity> toAdd = new AlmaList<>();
+        toAdd.add(entities[2]);
+        toAdd.add(entities[3]);
+        toAdd.add(entities[4]);
+        test.addList(toAdd);
+        TestUtils.printTestIteration("Size", expectedSize, test.size());
+        TestUtils.printTestIteration("Element 5", expectedPos4, test.get(4));
+        assertEquals(expectedSize, test.size());
+        assertEquals(expectedPos4, test.get(4));
     }
 
     @Test
     void testRemove() {
         TestUtils.printTestHeader("testRemove");
+        int expectedSize = 3;
+        TestEntity expectedRemoved = entities[4];
+        AlmaList<TestEntity> test = new AlmaList<>(TestEntity.class);
+        test.add(entities[0]);
+        test.add(entities[1]);
+        test.add(entities[2]);
+        test.add(entities[3]);
+        test.add(entities[4]);
+        TestEntity actualRemovedIndex = test.remove(4);
+        boolean actualRemovedInstance = test.remove(entities[1]);
+        TestUtils.printTestIteration("Size", expectedSize, test.size());
+        TestUtils.printTestIteration("Removed by index", expectedRemoved, actualRemovedIndex);
+        TestUtils.printTestIteration("Removed instance", true, actualRemovedInstance);
+        assertEquals(expectedSize, test.size());
+        assertEquals(expectedRemoved, actualRemovedIndex);
+        assertTrue(actualRemovedInstance);
     }
 
     @Test
     void testGet() {
         TestUtils.printTestHeader("testGet");
+        int expectedNewSize = (int) (20 * 1.5f);
+        TestEntity expectedPos1 = entities[1];
+        AlmaList<TestEntity> test = new AlmaList<>(16);
+        test.add(entities[0]);
+        test.add(entities[1]);
+        TestUtils.printTestIteration("Element 2", expectedPos1, test.get(1));
+        TestUtils.printTestIteration("Element 20", null, test.get(20));
+        TestUtils.printTestIteration("Size after get > maxSize", expectedNewSize, test.maxSize());
+        assertEquals(expectedPos1, test.get(1));
+        assertEquals(expectedNewSize, test.maxSize());
+        assertNull(test.get(20));
     }
 
     @Test
     void testSet() {
         TestUtils.printTestHeader("testSet");
+        int expectedNewSize = (int) (20 * 1.5f);
+        TestEntity expectedPos1 = entities[1];
+        TestEntity expectedPos20 = entities[20];
+        AlmaList<TestEntity> test = new AlmaList<>(16);
+        test.add(entities[0]);
+        test.add(entities[1]);
+        test.set(20, entities[20]);
+        TestUtils.printTestIteration("Element 2", expectedPos1, test.get(1));
+        TestUtils.printTestIteration("Element 20", expectedPos20, test.get(20));
+        TestUtils.printTestIteration("Size after get > maxSize", expectedNewSize, test.maxSize());
+        assertEquals(expectedPos1, test.get(1));
+        assertEquals(expectedPos20, test.get(20));
+        assertEquals(expectedNewSize, test.maxSize());
     }
 
     @Test
     void testContains() {
         TestUtils.printTestHeader("testContains");
+        AlmaList<TestEntity> test = new AlmaList<>(16);
+        test.add(entities[0]);
+        test.add(entities[1]);
+        TestUtils.printTestIteration("Contains", true, test.maxSize());
+        assertTrue(test.contains(entities[1]));
     }
-
-    @Test
-    void testGrow() {
-        /*
-         * Test for the list growing as expected. List should grow when an item is added when full, when getting an item
-         * out of bounds and when setting an item out of bounds. It should grow by a factor of 1.5 of either the max size
-         * or  the index it is trying to access (get and set), whichever is highest.
-         *
-         * This functionality of the list is critical, so this method should test thoroughly.
-         */
-
-        TestUtils.printTestHeader("testGrow");
-    }
-
-
 }
