@@ -1,4 +1,4 @@
-package alma.structures;
+package alma;
 
 import alma.CompositionHash;
 import alma.TestUtils;

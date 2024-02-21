@@ -1,6 +1,5 @@
 package alma;
 
-import alma.api.AlmaCore;
 import alma.api.AlmaComponent;
 import alma.api.AlmaListener;
 import alma.events.AlmaEvent;
@@ -10,15 +9,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Alma is the entry point to the ECS. It implements the interface AlmaCore that defines all the actions that Alma must be able to
- * perform.
+ * The Director is the entry point to the ECS. It implements the interface AlmaCore that defines all the actions that Alma must be able to
+ * perform. The name is provisional for now as it may be subdivided or new classes may take a place on the workflow.
  *
  * @author Santiago Barreiro
  */
-public final class Alma implements AlmaCore {
+public final class PartitionManager {
 
     // ATTRIBUTES
-    private final CompositionManager compositionManager;
+    private final CompositionManager cm;
     private final ConcurrentHashMap<CompositionHash, Partition> partitions;     // Partition map
     private final IdHandler idHandler;                                          // Manager of IDs for the pool and partitions
     private int pCount;                                                         // Amount of partitions currently stored
@@ -26,8 +25,8 @@ public final class Alma implements AlmaCore {
     private final AlmaList<AlmaEvent> events;
 
     // CONSTRUCTORS
-    public Alma() {
-        this.compositionManager = new CompositionManager();
+    public PartitionManager() {
+        this.cm = new CompositionManager();
         this.partitions = new ConcurrentHashMap<>();
         this.idHandler = new IdHandler();
         this.listeners = new ConcurrentHashMap<>();
@@ -35,33 +34,13 @@ public final class Alma implements AlmaCore {
     }
 
     // METHODS
-    @Override
-    public long createEntity() {
-        return 1L;
-    }
-
-    @Override
-    public long createEntity(AlmaComponent[] c) {
-        return 0;
-    }
-
-    @Override
-    public void addComponent(long e, AlmaComponent[] c) {
+    public void createEntity(Class<?>[] composition) {
 
     }
 
-    @Override
-    public void removeComponent(long e, AlmaComponent[] c) {
-
-    }
-
-    @Override
-    public void removeEntity(long e) {
-
-    }
-
-    @Override
-    public void addListener(AlmaListener listener) {
-
+    public AlmaList<Partition> fetchPartitionsFullJoin(Class<?>[] components) {
+        AlmaList<Partition> results = new AlmaList<>();
+        cm.queryCompositionsFullJoin(components);
+        return results;
     }
 }

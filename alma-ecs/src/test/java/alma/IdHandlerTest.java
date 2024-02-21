@@ -1,7 +1,5 @@
-package alma.structures;
+package alma;
 
-import alma.IdHandler;
-import alma.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

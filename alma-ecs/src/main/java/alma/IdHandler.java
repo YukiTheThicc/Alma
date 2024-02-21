@@ -7,12 +7,14 @@ import java.util.Random;
  * Class to manage IDs for partition members. Generates IID (Internal ID) based on integers to optimize component and
  * entity localization. It also manages UUID generation allow entities to be universally identifiable between instances
  * of Alma.
+ *
+ * @author Santiago Barreiro
  */
 public final class IdHandler {
 
     // CONSTANTS
     public static final int MAX_BITS = 31;                  // Max bits for an ID (31 -> signed integer)
-    public static final int DEFAULT_PARTITION_BITS = 13;    // How many bits are reserved for the partition identification
+    public static final int DEFAULT_PARTITION_BITS = 12;    // How many bits are reserved for the partition identification
 
     // ATTRIBUTES
     public final int maxPartitions;                         // Max amount of partitions

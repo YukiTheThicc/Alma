@@ -1,4 +1,4 @@
-package alma.utils;
+package alma;
 
 import alma.IdStack;
 import org.junit.jupiter.api.Test;

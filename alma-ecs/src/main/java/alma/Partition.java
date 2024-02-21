@@ -14,7 +14,6 @@ public final class Partition {
     private final IdStack idStack;                      // IdStack of reusable IDs for the partition
     private final int[] entitySlots;                    // List of entities handled by the partition
     private final AlmaComponent[] components;           // List of components handled by the partition
-    private final Composition composition;              // Composition stored within this partition
     private final int stride;                           // Stride of the composition stored in the partition
     private int index;                                  // Current entity index
     private boolean isDirty;                            // Flag for dirty partition
@@ -32,7 +31,6 @@ public final class Partition {
         this.entitySlots = new int[idHandler.itemsPerPartition];
         this.toRemove = new IdStack(idHandler.invalidValue);
         this.components = new AlmaComponent[idHandler.itemsPerPartition * stride];
-        this.composition = composition;
         this.stride = composition.getSize();
         this.index = -1;
         this.isDirty = false;
@@ -47,10 +45,6 @@ public final class Partition {
         return components;
     }
 
-    public Composition getComposition() {
-        return composition;
-    }
-
     public int getStride() {
         return stride;
     }
@@ -60,9 +54,6 @@ public final class Partition {
     }
 
     // METHODS
-    public void addEntity(Entity newEntity, AlmaComponent[] components) {
-        int pos = idHandler.getItemId(newEntity.getIid());
-    }
 
     public void removeEntity(int entity) {
         toRemove.push(entity);

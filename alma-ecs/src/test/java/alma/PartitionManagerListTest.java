@@ -1,24 +1,20 @@
-package alma.utils;
+package alma;
 
-import alma.AlmaList;
-import alma.Entity;
-import alma.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AlmaListTest {
+class PartitionManagerListTest {
 
     private static final int DEFAULT_LIST_SIZE = 16;
     private TestEntity[] entities;
 
-    private static class TestEntity extends Entity {
+    private static class TestEntity {
         public int value;
 
         TestEntity(int value) {
-            super(value);
             this.value = value;
         }
 
