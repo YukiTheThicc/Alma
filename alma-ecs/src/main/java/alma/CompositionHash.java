@@ -3,7 +3,7 @@ package alma;
 import java.util.Arrays;
 
 /**
- * Optimized hash class for compositions. Inspired on Enrico Stara Dominion implementation.
+ * Optimized hash class for compositions. Based on Enrico Stara Dominion implementation.
  *
  * @author Santiago Barreiro
  */

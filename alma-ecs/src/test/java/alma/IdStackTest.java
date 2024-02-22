@@ -1,6 +1,5 @@
 package alma;
 
-import alma.IdStack;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -23,7 +22,8 @@ class IdStackTest {
     @Test
     void testPush() {
         int[] expected = {4, 2, 3, 1};
-        IdStack sut = new IdStack(4);
+        expected = Arrays.copyOf(expected, 4);
+        IdStack sut = new IdStack(4, -1);
         sut.push(4);
         sut.push(2);
         sut.push(3);
@@ -35,7 +35,7 @@ class IdStackTest {
     void testGrow() {
         int[] expected = {4, 2, 3, 1, 5};
         expected = Arrays.copyOf(expected, 8);
-        IdStack sut = new IdStack(4);
+        IdStack sut = new IdStack(4, -1);
         sut.push(4);
         sut.push(2);
         sut.push(3);
@@ -47,7 +47,7 @@ class IdStackTest {
     @Test
     void testEmpty() {
         int expected = -1;
-        IdStack sut = new IdStack(4);
+        IdStack sut = new IdStack(-1);
         sut.push(4);
         sut.push(2);
         sut.push(3);

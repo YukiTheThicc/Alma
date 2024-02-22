@@ -28,6 +28,7 @@ public final class Composition {
     }
 
     // METHODS
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

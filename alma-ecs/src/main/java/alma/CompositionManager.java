@@ -58,9 +58,6 @@ public final class CompositionManager {
      * Gets the composition that matches the component types. Lazily creates a new composition if it doesn't exist. If
      * the composition didn't exist, then the classCompositions map will be updated and the new composition will be
      * added to the list of compositions with that class.
-     * <p>
-     * Components array is ordered before creating the Composition. Compositions should not be created randomly at runtime
-     * so the overall performance impact of the Bubble sort should not be relevant.
      *
      * @param components List of component classes to match the composition
      * @return The matched composition

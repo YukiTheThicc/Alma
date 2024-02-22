@@ -23,7 +23,7 @@ class PartitionTest {
 
     @BeforeEach
     void setUp() {
-        sut = new Partition(new IdHandler(), new Composition(new Class[]{C1.class, C2.class}));
+        sut = new Partition(1, new IdHandler(), new Composition(new Class[]{C1.class, C2.class}));
     }
 
     @AfterEach
