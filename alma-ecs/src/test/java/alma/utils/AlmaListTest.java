@@ -1,12 +1,14 @@
-package alma;
+package alma.utils;
 
+import alma.utils.AlmaList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import utils.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PartitionManagerListTest {
+class AlmaListTest {
 
     private static final int DEFAULT_LIST_SIZE = 16;
     private TestEntity[] entities;

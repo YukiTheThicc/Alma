@@ -1,5 +1,6 @@
-package alma;
+package alma.utils;
 
+import alma.utils.IdStack;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -8,10 +9,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IdStackTest {
 
+    public static final int INVALID_INT = 1 << 31;
+
     @Test
     void testPop() {
         int expected = 1;
-        IdStack sut = new IdStack(4);
+        IdStack sut = new IdStack(INVALID_INT);
         sut.push(4);
         sut.push(2);
         sut.push(3);
@@ -23,7 +26,7 @@ class IdStackTest {
     void testPush() {
         int[] expected = {4, 2, 3, 1};
         expected = Arrays.copyOf(expected, 4);
-        IdStack sut = new IdStack(4, -1);
+        IdStack sut = new IdStack(4, INVALID_INT);
         sut.push(4);
         sut.push(2);
         sut.push(3);
@@ -35,7 +38,7 @@ class IdStackTest {
     void testGrow() {
         int[] expected = {4, 2, 3, 1, 5};
         expected = Arrays.copyOf(expected, 8);
-        IdStack sut = new IdStack(4, -1);
+        IdStack sut = new IdStack(4, INVALID_INT);
         sut.push(4);
         sut.push(2);
         sut.push(3);
@@ -46,8 +49,7 @@ class IdStackTest {
 
     @Test
     void testEmpty() {
-        int expected = -1;
-        IdStack sut = new IdStack(-1);
+        IdStack sut = new IdStack(INVALID_INT);
         sut.push(4);
         sut.push(2);
         sut.push(3);
@@ -56,6 +58,12 @@ class IdStackTest {
         sut.pop();
         sut.pop();
         sut.pop();
-        assertEquals(expected, sut.pop());
+        assertEquals(INVALID_INT, sut.pop());
+    }
+
+    @Test
+    void testFullEmpty() {
+        IdStack sut = new IdStack(INVALID_INT);
+        assertEquals(INVALID_INT, sut.pop());
     }
 }

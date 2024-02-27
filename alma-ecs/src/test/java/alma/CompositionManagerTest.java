@@ -1,13 +1,11 @@
 package alma;
 
-import alma.Composition;
-import alma.CompositionHash;
-import alma.CompositionManager;
-import alma.TestUtils;
 import alma.api.AlmaComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import utils.TestComponent;
+import utils.TestUtils;
 
 import java.util.Map;
 
@@ -15,18 +13,45 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CompositionManagerTest {
 
-    private record C1() implements AlmaComponent {
+    static class C1 extends TestComponent {
+        public C1(int value) {
+            super(value);
+        }
+
+        public C1() {
+            super();
+        }
     }
 
-    private record C2() implements AlmaComponent {
+    static class C2 extends TestComponent {
+        public C2(int value) {
+            super(value);
+        }
+
+        public C2() {
+            super();
+        }
     }
 
-    private record C3() implements AlmaComponent {
+    static class C3 extends TestComponent {
+        public C3(int value) {
+            super(value);
+        }
+
+        public C3() {
+            super();
+        }
     }
 
-    private record C4() implements AlmaComponent {
-    }
+    static class C4 extends TestComponent {
+        public C4(int value) {
+            super(value);
+        }
 
+        public C4() {
+            super();
+        }
+    }
     private CompositionManager cm;
 
     @BeforeEach

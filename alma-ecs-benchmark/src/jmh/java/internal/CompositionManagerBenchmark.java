@@ -1,10 +1,10 @@
 package internal;
 
-import alma.Composition;
 import alma.CompositionManager;
 import alma.api.AlmaComponent;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
+import utils.TestComponent;
 
 import java.util.concurrent.TimeUnit;
 
@@ -21,32 +21,53 @@ public class CompositionManagerBenchmark {
     AlmaComponent[] components1 = new AlmaComponent[]{new C1(1), new C2(2)};
     AlmaComponent[] components2 = new AlmaComponent[]{new C1(1), new C2(2), new C3(3), new C4(4)};
     AlmaComponent[] components3 = new AlmaComponent[]{new C1(1), new C2(2), new C3(3), new C4(4), new C5(5), new C6(6), new C7(7), new C8(8)};
-    Composition composition1;
-    Composition composition2;
-    Composition composition3;
 
-    record C1(int id) implements AlmaComponent {
+    static class C1 extends TestComponent {
+        public C1(int value) {
+            super(value);
+        }
     }
 
-    record C2(int id) implements AlmaComponent {
+    static class C2 extends TestComponent {
+        public C2(int value) {
+            super(value);
+        }
     }
 
-    record C3(int id) implements AlmaComponent {
+    static class C3 extends TestComponent {
+        public C3(int value) {
+            super(value);
+        }
     }
 
-    record C4(int id) implements AlmaComponent {
+    static class C4 extends TestComponent {
+        public C4(int value) {
+            super(value);
+        }
     }
 
-    record C5(int id) implements AlmaComponent {
+    static class C5 extends TestComponent {
+        public C5(int value) {
+            super(value);
+        }
     }
 
-    record C6(int id) implements AlmaComponent {
+    static class C6 extends TestComponent {
+        public C6(int value) {
+            super(value);
+        }
     }
 
-    record C7(int id) implements AlmaComponent {
+    static class C7 extends TestComponent {
+        public C7(int value) {
+            super(value);
+        }
     }
 
-    record C8(int id) implements AlmaComponent {
+    static class C8 extends TestComponent {
+        public C8(int value) {
+            super(value);
+        }
     }
 
     @Setup(Level.Iteration)
