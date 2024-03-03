@@ -14,40 +14,24 @@ import static org.junit.jupiter.api.Assertions.*;
 class CompositionManagerTest {
 
     static class C1 extends TestComponent {
-        public C1(int value) {
-            super(value);
-        }
-
         public C1() {
             super();
         }
     }
 
     static class C2 extends TestComponent {
-        public C2(int value) {
-            super(value);
-        }
-
         public C2() {
             super();
         }
     }
 
     static class C3 extends TestComponent {
-        public C3(int value) {
-            super(value);
-        }
-
         public C3() {
             super();
         }
     }
 
     static class C4 extends TestComponent {
-        public C4(int value) {
-            super(value);
-        }
-
         public C4() {
             super();
         }
@@ -115,8 +99,8 @@ class CompositionManagerTest {
         Composition expectedC2C3 = new Composition(new Class[]{C2.class, C3.class});
         Composition expectedC3 = new Composition(new Class[]{C3.class});
         Composition expectedC1 = new Composition(new Class[]{C1.class});
-        Composition compositionC2C3 = cm.getComposition(new AlmaComponent[] {new C2(), new C3()});
         Composition compositionC3C2 = cm.getComposition(new AlmaComponent[] {new C3(), new C2()});
+        Composition compositionC2C3 = cm.getComposition(new AlmaComponent[] {new C2(), new C3()});
         Composition compositionC3 = cm.getComposition(new AlmaComponent[] {new C3()});
         Composition compositionC1 = cm.getComposition(new AlmaComponent[] {new C1()});
         TestUtils.printTestIteration("C2 C3", expectedC2C3, compositionC2C3);

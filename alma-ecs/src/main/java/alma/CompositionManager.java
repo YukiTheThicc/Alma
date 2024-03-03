@@ -52,6 +52,25 @@ public final class CompositionManager {
         return componentTypes;
     }
 
+    private Class<?>[] sortComponentsTypes(Class<?>[] types) {
+        int idx;
+        for (int i = 0; i < types.length; i++) {
+            idx = classIndex.get(types[i]);
+            if (idx != i) {
+                Class<?> aux = types[idx];
+                types[idx] = types[i];
+                types[i] = aux;
+            }
+        }
+        idx = classIndex.get(types[0]);
+        if (idx > 0) {
+            Class<?> aux = types[idx];
+            types[idx] = types[0];
+            types[0] = aux;
+        }
+        return types;
+    }
+
     //___ START of BASIC METHODS ___//
 
     /**
@@ -67,7 +86,7 @@ public final class CompositionManager {
         Composition c = compositions.get(cHash);
         if (c == null) {
             // Lazily create the composition corresponding to the components
-            c = new Composition(components);
+            c = new Composition(sortComponentsTypes(components));
             compositions.put(cHash, c);
             for (Class<?> type : components) {
                 // Add composition to list of compositions that contain this class
@@ -139,9 +158,9 @@ public final class CompositionManager {
     /*
      * Composition query methods. At this moment, no cache is used. A cache could be used as it is common that systems
      * may use more complex queries which results, if not cached, will have to be recalculated every time. This could
-     * potentially add unnecessary overhead, or it may be a situation in which the cache is either overkill, not improve
-     * or even worsen performance. These methods should be thoroughly benchmarked with and without using cache as to
-     * understand the need for a cache
+     * potentially add unnecessary overhead, or it may be the case that the cache is either overkill, not improve
+     * or even worsen performance. These methods should be thoroughly benchmarked with and without a result cache as to
+     * understand if it is needed or not
      */
 
     /**

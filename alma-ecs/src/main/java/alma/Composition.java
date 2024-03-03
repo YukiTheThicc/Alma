@@ -1,5 +1,7 @@
 package alma;
 
+import alma.api.AlmaComponent;
+
 /**
  * A composition is a structure describing the composition of one type of entity. It holds a map of the component classes
  * that make up an entity from this composition.
@@ -10,11 +12,13 @@ public final class Composition {
 
     // ATTRIBUTES
     private final Class<?>[] componentTypes;
+    private final AlmaComponent[] template;
     private final int size;
 
     // CONSTRUCTORS
     public Composition(Class<?>[] componentTypes) {
         this.componentTypes = componentTypes;
+        this.template = new AlmaComponent[componentTypes.length];
         this.size = componentTypes.length;
     }
 
@@ -28,6 +32,14 @@ public final class Composition {
     }
 
     // METHODS
+
+    public void setTemplate(AlmaComponent[] components) {
+        for (AlmaComponent c : components) {
+            for (int i = 0; i < componentTypes.length; i++) {
+                if (c.getClass() == componentTypes[i]) template[i] = c;
+            }
+        }
+    }
 
     @Override
     public String toString() {
