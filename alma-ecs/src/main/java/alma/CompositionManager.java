@@ -33,13 +33,7 @@ public final class CompositionManager {
 
     }
 
-    // GETTERS & SETTERS
-    public int getIndex() {
-        return index;
-    }
-
     // METHODS
-
     /**
      * Internal function to get the classes from a list of component instances.
      *
@@ -51,27 +45,16 @@ public final class CompositionManager {
         for (int i = 0; i < components.length; i++) componentTypes[i] = components[i].getClass();
         return componentTypes;
     }
-
-    private Class<?>[] sortComponentsTypes(Class<?>[] types) {
-        int idx;
-        for (int i = 0; i < types.length; i++) {
-            idx = classIndex.get(types[i]);
-            if (idx != i) {
-                Class<?> aux = types[idx];
-                types[idx] = types[i];
-                types[i] = aux;
-            }
-        }
-        idx = classIndex.get(types[0]);
-        if (idx > 0) {
-            Class<?> aux = types[idx];
-            types[idx] = types[0];
-            types[0] = aux;
-        }
-        return types;
-    }
-
     //___ START of BASIC METHODS ___//
+
+    /**
+     * Retrieves the index of the type.
+     * @param type Class to know the int value of
+     * @return The int value of the class
+     */
+    public int getClassIndex(Class<?> type) {
+        return classIndex.get(type);
+    }
 
     /**
      * Gets the composition that matches the component types. Lazily creates a new composition if it doesn't exist. If
@@ -86,7 +69,7 @@ public final class CompositionManager {
         Composition c = compositions.get(cHash);
         if (c == null) {
             // Lazily create the composition corresponding to the components
-            c = new Composition(sortComponentsTypes(components));
+            c = new Composition(components);
             compositions.put(cHash, c);
             for (Class<?> type : components) {
                 // Add composition to list of compositions that contain this class

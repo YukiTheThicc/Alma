@@ -4,6 +4,8 @@ import alma.api.AlmaComponent;
 import alma.utils.AlmaException;
 import alma.utils.IdStack;
 
+import java.util.Arrays;
+
 /**
  * A partition is a linked data structure that holds the data from a specific entity composition.
  *
@@ -31,9 +33,9 @@ public final class Partition {
     public Partition(int iid, IdHandler idHandler, int stride) {
         this.idHandler = idHandler;
         this.idStack = new IdStack(idHandler.invalidValue);
-        this.entitySlots = new int[idHandler.itemsPerPartition];
+        this.entitySlots = new int[idHandler.partitionCapacity]; Arrays.fill(this.entitySlots, -1);
         this.toRemove = new IdStack(idHandler.invalidValue);
-        this.componentsSlots = new AlmaComponent[idHandler.itemsPerPartition * stride];
+        this.componentsSlots = new AlmaComponent[idHandler.partitionCapacity * stride];
         this.stride = stride;
         this.iid = iid;
         this.size = 0;
@@ -78,6 +80,15 @@ public final class Partition {
         }
     }
 
+    public void swapEntities(int e1, int e2) {
+        int pos1 = idHandler.getItemId(e1);
+        int pos2 = idHandler.getItemId(e2);
+        if (pos1 != -1 && pos2 != -1) {
+            AlmaComponent[] componentsE1 = fetchEntityComponents(e1);
+
+        }
+    }
+
     public int size() {
         return size;
     }
@@ -88,7 +99,8 @@ public final class Partition {
      * @return Array of components from the passed entity
      */
     public AlmaComponent[] fetchEntityComponents(int entity) {
-        if (idHandler.getPartitionId(entity) != iid) throw new AlmaException("Tried to retrieve components for an entity of a different composition");
+        if (idHandler.getPartitionId(entity) != iid ) throw new AlmaException("Tried to retrieve components for an entity of a different composition");
+        if (idHandler.getItemId(entity) == -1 ) throw new AlmaException("Tried to fetch components of a non-existing entity");
         AlmaComponent[] entityComponents = new AlmaComponent[stride];
         int first = idHandler.getItemId(entity);
         java.lang.System.arraycopy(componentsSlots, first * stride, entityComponents, 0, stride);
@@ -104,9 +116,10 @@ public final class Partition {
             int idToRemove = toRemove.pop();
             while(idToRemove != idHandler.invalidValue) {
                 int pos = idHandler.getItemId(idToRemove);
-                entitySlots[pos] = entitySlots[size--];
+                entitySlots[pos] = -1;
                 idStack.push(idToRemove);
                 idToRemove = toRemove.pop();
+                size--;
             }
         }
     }

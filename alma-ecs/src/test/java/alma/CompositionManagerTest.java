@@ -52,20 +52,24 @@ class CompositionManagerTest {
     public void getIndexTest() {
 
         TestUtils.printTestHeader("getIndexTest");
-        int expectedEmpty = 1;          // Index starts at 1
-        int expectedBasic = 4;          // Expected to add 3, so index should be 1 + 3
 
-        int actualEmpty = cm.getIndex();
+        cm.getComposition(new AlmaComponent[]{new C3()});
         cm.getComposition(new AlmaComponent[]{new C1()});
         cm.getComposition(new AlmaComponent[]{new C2()});
-        cm.getComposition(new AlmaComponent[]{new C3()});
-        int actualBasic = cm.getIndex();
+        int expectedC1 = 2;
+        int expectedC2 = 3;
+        int expectedC3 = 1;
+        int actualC1 = cm.getClassIndex(C1.class);
+        int actualC2 = cm.getClassIndex(C2.class);
+        int actualC3 = cm.getClassIndex(C3.class);
 
-        TestUtils.printTestIteration("Empty CM", expectedEmpty, actualEmpty);
-        TestUtils.printTestIteration("Partially filled CM", expectedBasic, actualBasic);
+        TestUtils.printTestIteration("C1", expectedC1, actualC1);
+        TestUtils.printTestIteration("C1", expectedC2, actualC2);
+        TestUtils.printTestIteration("C1", expectedC3, actualC3);
         assertAll(
-                () -> assertEquals(expectedEmpty, actualEmpty),
-                () -> assertEquals(expectedBasic, actualBasic)
+                () -> assertEquals(expectedC1, actualC1),
+                () -> assertEquals(expectedC2, actualC2),
+                () -> assertEquals(expectedC3, actualC3)
         );
     }
 
@@ -99,8 +103,8 @@ class CompositionManagerTest {
         Composition expectedC2C3 = new Composition(new Class[]{C2.class, C3.class});
         Composition expectedC3 = new Composition(new Class[]{C3.class});
         Composition expectedC1 = new Composition(new Class[]{C1.class});
-        Composition compositionC3C2 = cm.getComposition(new AlmaComponent[] {new C3(), new C2()});
-        Composition compositionC2C3 = cm.getComposition(new AlmaComponent[] {new C2(), new C3()});
+        Composition compositionC3C2 = cm.getComposition(new AlmaComponent[] {new C2(), new C3()});
+        Composition compositionC2C3 = cm.getComposition(new AlmaComponent[] {new C3(), new C2()});
         Composition compositionC3 = cm.getComposition(new AlmaComponent[] {new C3()});
         Composition compositionC1 = cm.getComposition(new AlmaComponent[] {new C1()});
         TestUtils.printTestIteration("C2 C3", expectedC2C3, compositionC2C3);

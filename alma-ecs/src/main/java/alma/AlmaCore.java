@@ -14,12 +14,10 @@ public class AlmaCore {
 
     // ATTRIBUTES
     private CompositionManager cm;
-    private Map<CompositionHash, Partition> partitionMap;
 
     // CONSTRUCTORS
     private AlmaCore() {
         this.cm = new CompositionManager();
-        this.partitionMap = new ConcurrentHashMap<>();
     }
 
     // GETTERS & SETTERS

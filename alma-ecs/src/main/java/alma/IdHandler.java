@@ -13,17 +13,19 @@ import java.util.Random;
 public final class IdHandler {
 
     // CONSTANTS
-    public static final int MAX_BITS = 31;                  // Max bits for an ID (31 -> signed integer)
-    public static final int DEFAULT_PARTITION_BITS = 12;    // How many bits are reserved for the partition identification
+    public static final int MAX_BITS = 31;                      // Max bits for an ID (31 -> signed integer)
+    public static final int DEFAULT_PARTITION_BITS = 12;        // How many bits are reserved for the partition identification
+    public static final int DEFAULT_PARTITION_CAPACITY = 12;    // Default partition capacity (2^capacity)
 
     // ATTRIBUTES
-    public final int maxPartitions;                         // Max amount of partitions
-    public final int itemsPerPartition;                     // Max items per partition
-    public final int partitionBits;                         // Bits reserved fot the partition segment
-    public final int partitionBitShift;                     // Bits reserved fot the partition segment
-    public final int partitionMask;                         // Masks other bits so only the partition segment is visible
-    public final int itemMask;                              // Masks other bits so only the item segment is visible
-    public final int invalidValue = 1 << MAX_BITS;          // Value indicating a non valid ID
+    public final int maxPartitions;                             // Max amount of partitions
+    public final int partitionCapacity;                         // Partition capacity
+    public final int itemsPerPartition;                         // Max items per partition
+    public final int partitionBits;                             // Bits reserved fot the partition segment
+    public final int partitionBitShift;                         // Bits reserved fot the partition segment
+    public final int partitionMask;                             // Masks other bits so only the partition segment is visible
+    public final int itemMask;                                  // Masks other bits so only the item segment is visible
+    public final int invalidValue = 1 << MAX_BITS;              // Value indicating a non valid ID
 
     // CONSTRUCTORS
     public IdHandler() {
@@ -31,9 +33,14 @@ public final class IdHandler {
     }
 
     public IdHandler(int partitionBits) {
+        this(DEFAULT_PARTITION_BITS, DEFAULT_PARTITION_CAPACITY);
+    }
+
+    public IdHandler(int partitionBits, int capacity) {
         this.partitionBits = partitionBits;
         this.partitionBitShift = (MAX_BITS - partitionBits);
         this.maxPartitions = (1 << partitionBits) - 1;
+        this.partitionCapacity = (1 << capacity);
         this.itemsPerPartition = (1 << partitionBitShift) - 1;
         this.partitionMask = maxPartitions << partitionBitShift;
         this.itemMask = (1 << partitionBitShift) - 1;
