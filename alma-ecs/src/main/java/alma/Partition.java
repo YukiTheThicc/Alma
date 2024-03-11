@@ -80,15 +80,6 @@ public final class Partition {
         }
     }
 
-    public void swapEntities(int e1, int e2) {
-        int pos1 = idHandler.getItemId(e1);
-        int pos2 = idHandler.getItemId(e2);
-        if (pos1 != -1 && pos2 != -1) {
-            AlmaComponent[] componentsE1 = fetchEntityComponents(e1);
-
-        }
-    }
-
     public int size() {
         return size;
     }

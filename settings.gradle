@@ -3,4 +3,5 @@ include 'alma'
 include 'alma-ecs-benchmark'
 include 'alma-ecs'
 include 'alma-ecs-api'
+include 'alma-ecs-examples'
 

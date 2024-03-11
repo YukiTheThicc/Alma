@@ -25,7 +25,7 @@ public class AlmaCore {
 
     // METHODS
     public void createEntity(AlmaComponent[] composition) {
-
+        Composition target = cm.getComposition(composition);
     }
 
     public static class Factory {
