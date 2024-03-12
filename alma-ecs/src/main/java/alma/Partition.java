@@ -80,10 +80,18 @@ public final class Partition {
         size--;
     }
 
+    /**
+     * Returns the current amount of entities stored within this partition
+     * @return Amount of entities stored within this partition
+     */
     public int size() {
         return size;
     }
 
+    /**
+     * Returns the amount of chunks currently in use by this partition
+     * @return Amount of chunks currently in use by this partition
+     */
     public int usedChunks() {
         return usedChunks;
     }
@@ -107,7 +115,8 @@ public final class Partition {
     }
 
     /**
-     * Static private class that models a single partition link. Partition links are used to create a
+     * Static private class that models a single partition chunk. Each chunk is of a fixed power-of-two size as to make
+     * fast bitwise operations and fetch the chunk id and the entity chunk position
      */
     private static class PartitionChunk {
 
@@ -136,4 +145,6 @@ public final class Partition {
             entitySlots[pos] = entity;
         }
     }
+
+    public static class PartitionIterator<>
 }
