@@ -2,7 +2,7 @@ package alma;
 
 import alma.api.AlmaComponent;
 import alma.utils.AlmaException;
-import alma.utils.IdStack;
+import alma.utils.IntStack;
 
 import java.util.Arrays;
 
@@ -15,16 +15,12 @@ public final class Partition {
 
     // ATTRIBUTES - MAIN
     private final IdHandler idHandler;                  // IdHandler for the partition
-    private final IdStack idStack;                      // IdStack of reusable IDs for the partition
-    private final int[] entitySlots;                    // List of entities handled by the partition
-    private final AlmaComponent[] componentsSlots;      // List of components handled by the partition
+    private final IntStack idStack;                     // IdStack of reusable IDs for the partition
+    private final PartitionChunk[] chunksSlots;         // Slots for the partitions chunks
     private final int stride;                           // Stride of the composition stored in the partition
     private final int iid;                              // Internal ID of the partition
-    private int size;                                   // Current entity size
-    private boolean isDirty;                            // Flag for dirty partition
-
-    // ATTRIBUTES - AUXILIARY
-    private final IdStack toRemove;
+    private int usedChunks;                             // Current amount of used partitions
+    private int size;                                   // Current amount of stored entities
 
     public Partition(int iid, IdHandler idHandler) {
         this(iid, idHandler, 1);
@@ -32,86 +28,112 @@ public final class Partition {
 
     public Partition(int iid, IdHandler idHandler, int stride) {
         this.idHandler = idHandler;
-        this.idStack = new IdStack(idHandler.invalidValue);
-        this.entitySlots = new int[idHandler.partitionCapacity]; Arrays.fill(this.entitySlots, -1);
-        this.toRemove = new IdStack(idHandler.invalidValue);
-        this.componentsSlots = new AlmaComponent[idHandler.partitionCapacity * stride];
+        this.idStack = new IntStack(idHandler.invalidValue);
+        this.chunksSlots = new PartitionChunk[1 << idHandler.partitionBitShift >> idHandler.partitionLinkCapacityBits];
         this.stride = stride;
         this.iid = iid;
+        this.usedChunks = 0;
         this.size = 0;
-        this.isDirty = false;
     }
 
     // METHODS
 
     /**
      * UNSAFE. Adds the passed list of components as an entity for this partition. Only checks size of the array
+     *
      * @param components Array of component instances
      * @return ID of the new entity
      */
     public int addEntity(AlmaComponent[] components) {
-        if (components.length == stride) {
-            int id = idStack.pop();
-            if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
-            int pos = idHandler.getItemId(id);
-            for (int i = 0; i < stride; i++) {
-                int c_pos = pos * stride + i;
-                if (componentsSlots[c_pos] != null) componentsSlots[c_pos].copy(components[i]);
-                else componentsSlots[c_pos] = components[i];
-            }
-            entitySlots[pos] = id;
-            size++;
-            return id;
-        } else {
+        if (components.length != stride)
             throw new AlmaException("Tried to insert wrong amount of components in partition");
+
+        int id = idStack.pop();
+        if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
+        int chunkId = idHandler.getPartitionChunk(id);
+        int chunkPos = idHandler.getPartitionChunkPos(id);
+
+        PartitionChunk chunk = chunksSlots[chunkId];
+        // Lazily create target chunk if it was null before addition
+        if (chunk == null) {
+            chunk = new PartitionChunk(idHandler.partitionLinkCapacity, stride, idHandler.invalidValue);
+            chunksSlots[chunkId] = chunk;
+            usedChunks++;
         }
+        chunk.setEntity(chunkPos, id, stride, components);
+        size++;
+        return id;
     }
 
     /**
-     * Adds an entity ID to the list of entities to remove
+     * Immediately sets the specified entity to an invalid value, so it can be reused later.
+     *
      * @param entity ID of the entity to remove
      */
     public void removeEntity(int entity) {
-        if (idHandler.getPartitionId(entity) == iid) {
-            toRemove.push(entity);
-            isDirty = true;
-        } else {
+        if (idHandler.getPartitionId(entity) != iid)
             throw new AlmaException("Tried to remove an entity with a different partition id");
-        }
+        int chunkId = idHandler.getPartitionChunk(entity);
+        int chunkOPos = idHandler.getPartitionChunkPos(entity);
+        chunksSlots[chunkId].entitySlots[chunkOPos] = idHandler.invalidValue;
+        idStack.push(entity);
+        size--;
     }
 
     public int size() {
         return size;
     }
 
+    public int usedChunks() {
+        return usedChunks;
+    }
+
     /**
      * Fetches the components from an entity. Throws exception if entity is not from this partition.
+     *
      * @param entity ID of the entity to recover the components from
      * @return Array of components from the passed entity
      */
     public AlmaComponent[] fetchEntityComponents(int entity) {
-        if (idHandler.getPartitionId(entity) != iid ) throw new AlmaException("Tried to retrieve components for an entity of a different composition");
-        if (idHandler.getItemId(entity) == -1 ) throw new AlmaException("Tried to fetch components of a non-existing entity");
+        if (idHandler.getPartitionId(entity) != iid)
+            throw new AlmaException("Tried to retrieve components for an entity of a different composition");
+        if (idHandler.getItemId(entity) == idHandler.invalidValue)
+            throw new AlmaException("Tried to fetch components of a non-existing entity");
         AlmaComponent[] entityComponents = new AlmaComponent[stride];
-        int first = idHandler.getItemId(entity);
-        java.lang.System.arraycopy(componentsSlots, first * stride, entityComponents, 0, stride);
+        int chunkId = idHandler.getPartitionChunk(entity);
+        int first = idHandler.getPartitionChunkPos(entity);
+        java.lang.System.arraycopy(chunksSlots[chunkId].componentsSlots, first * stride, entityComponents, 0, stride);
         return entityComponents;
     }
 
     /**
-     * Updates the partition lists. To avoid the GC, components inside this partition will not be set to null and will
-     * be reused.
+     * Static private class that models a single partition link. Partition links are used to create a
      */
-    public void update() {
-        if (isDirty) {
-            int idToRemove = toRemove.pop();
-            while(idToRemove != idHandler.invalidValue) {
-                int pos = idHandler.getItemId(idToRemove);
-                entitySlots[pos] = -1;
-                idStack.push(idToRemove);
-                idToRemove = toRemove.pop();
-                size--;
+    private static class PartitionChunk {
+
+        // ATTRIBUTES
+        private final int[] entitySlots;                    // List of entities handled by the partition chunk
+        private final AlmaComponent[] componentsSlots;      // List of components handled by the partition chunk
+
+        // CONSTRUCTORS
+        private PartitionChunk(int chunkSize, int stride, int invalidValue) {
+            this.entitySlots = new int[chunkSize];
+            Arrays.fill(this.entitySlots, invalidValue);
+            this.componentsSlots = new AlmaComponent[chunkSize * stride];
+        }
+
+        // METHODS
+        private int getEntityAt(int pos) {
+            return entitySlots[pos];
+        }
+
+        private void setEntity(int pos, int entity, int stride, AlmaComponent[] components) {
+            for (int i = 0; i < stride; i++) {
+                int c_pos = pos * stride + i;
+                if (componentsSlots[c_pos] != null) componentsSlots[c_pos].copy(components[i]);
+                else componentsSlots[c_pos] = components[i];
             }
+            entitySlots[pos] = entity;
         }
     }
 }

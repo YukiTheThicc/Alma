@@ -1,8 +1,5 @@
 package alma;
 
-import java.time.Instant;
-import java.util.Random;
-
 /**
  * Class to manage IDs for partition members. Generates IID (Internal ID) based on integers to optimize component and
  * entity localization. It also manages UUID generation allow entities to be universally identifiable between instances
@@ -15,15 +12,17 @@ public final class IdHandler {
     // CONSTANTS
     public static final int MAX_BITS = 31;                      // Max bits for an ID (31 -> signed integer)
     public static final int DEFAULT_PARTITION_BITS = 12;        // How many bits are reserved for the partition identification
-    public static final int DEFAULT_PARTITION_CAPACITY = 12;    // Default partition capacity (2^capacity)
+    public static final int DEFAULT_LINK_CAPACITY_BITS = 12;    // Default partition link capacity (2^capacity)
 
     // ATTRIBUTES
     public final int maxPartitions;                             // Max amount of partitions
-    public final int partitionCapacity;                         // Partition capacity
     public final int itemsPerPartition;                         // Max items per partition
     public final int partitionBits;                             // Bits reserved fot the partition segment
     public final int partitionBitShift;                         // Bits reserved fot the partition segment
     public final int partitionMask;                             // Masks other bits so only the partition segment is visible
+    public final int partitionLinkCapacityBits;                 // Partition link capacity bits
+    public final int partitionLinkCapacity;                     // Partition link capacity
+    public final int partitionLinkMask;                         // Masks the partition link bits
     public final int itemMask;                                  // Masks other bits so only the item segment is visible
     public final int invalidValue = 1 << MAX_BITS;              // Value indicating a non valid ID
 
@@ -33,14 +32,16 @@ public final class IdHandler {
     }
 
     public IdHandler(int partitionBits) {
-        this(DEFAULT_PARTITION_BITS, DEFAULT_PARTITION_CAPACITY);
+        this(partitionBits, DEFAULT_LINK_CAPACITY_BITS);
     }
 
-    public IdHandler(int partitionBits, int capacity) {
+    public IdHandler(int partitionBits, int linkBits) {
         this.partitionBits = partitionBits;
         this.partitionBitShift = (MAX_BITS - partitionBits);
         this.maxPartitions = (1 << partitionBits) - 1;
-        this.partitionCapacity = (1 << capacity);
+        this.partitionLinkCapacityBits = linkBits;
+        this.partitionLinkCapacity = (1 << linkBits);
+        this.partitionLinkMask = ((1 << (linkBits)) - 1);
         this.itemsPerPartition = (1 << partitionBitShift) - 1;
         this.partitionMask = maxPartitions << partitionBitShift;
         this.itemMask = (1 << partitionBitShift) - 1;
@@ -75,9 +76,11 @@ public final class IdHandler {
         return id & itemMask;
     }
 
-    public long generateUUID() {
-        int timeFragment = Instant.now().getNano();
-        int randomFragment = new Random().nextInt();
-        return (((long) timeFragment) << 32) | (randomFragment & 0xffffffffL);
+    public int getPartitionChunkPos(int id) {
+        return id & partitionLinkMask;
+    }
+
+    public int getPartitionChunk(int id) {
+        return (id & itemMask) >> partitionLinkCapacityBits;
     }
 }

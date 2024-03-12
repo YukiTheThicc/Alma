@@ -2,6 +2,8 @@ package utils;
 
 import alma.api.AlmaComponent;
 
+import java.util.Objects;
+
 /**
  * TestComponent
  *
@@ -24,5 +26,13 @@ public class TestComponent extends AlmaComponent {
         if (target instanceof TestComponent) {
             this.value = ((TestComponent) target).value;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestComponent that = (TestComponent) o;
+        return value == that.value;
     }
 }

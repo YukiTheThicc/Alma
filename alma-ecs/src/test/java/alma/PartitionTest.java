@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 import utils.TestComponent;
 import utils.TestUtils;
 
+import java.sql.SQLOutput;
+import java.util.Arrays;
+import java.util.Comparator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PartitionTest {
@@ -120,7 +124,6 @@ class PartitionTest {
         int removed = sut3.addEntity(expectedC);
         sut3.addEntity(new AlmaComponent[]{new C1(7), new C2(8), new C3(9)});
         sut3.removeEntity(removed);
-        sut3.update();
         int pooled = sut3.addEntity(new AlmaComponent[]{new C1(10), new C2(11), new C3(12)});
         sut3.addEntity(new AlmaComponent[]{new C1(13), new C2(14), new C3(15)});
         int expectedSize = 4;
@@ -145,5 +148,103 @@ class PartitionTest {
         assertThrows(AlmaException.class, () -> {
             sut2.fetchEntityComponents(expectedId);
         });
+    }
+
+    @Test
+    void testAdding500000_2() {
+        TestUtils.printTestHeader("testAdding500000_2 - STRESS TEST");
+
+        final int ITERATIONS = 5;
+        for (int i = 1; i <= ITERATIONS; i++) {
+
+            sut2 = new Partition(2, new IdHandler(12, 12), 2);
+            int partitionSize = (int) (Math.random() * 500000 + 2001);
+            int removeInterval = (int) (Math.random() * 100 + 31);
+            int expectedFinalSize = partitionSize - (partitionSize / removeInterval) - (partitionSize % removeInterval != 0 ? 1 : 0);
+            int expectedChunksUsed = (int) Math.ceil((float) expectedFinalSize / 4096);
+
+            int randomEntityComponentCheck = (int) (Math.random() * expectedFinalSize + 0);
+            int randomComponentCheckEntity = -1;
+            AlmaComponent[] randomExpectedComponents = null;
+            boolean randomEliminated = false;
+
+            int previousEntity;
+            for (int j = 0; j < partitionSize; j++) {
+                AlmaComponent[] components = new AlmaComponent[]{new C1((int) (Math.random() * Integer.MAX_VALUE + 1)), new C2((int) (Math.random() * Integer.MAX_VALUE + 1))};
+                previousEntity = sut2.addEntity(components);
+                if (j % removeInterval == 0) {
+                    sut2.removeEntity(previousEntity);
+                }
+                if (j == randomEntityComponentCheck) {
+                    if (j % removeInterval == 0) {
+                        randomEliminated = true;
+                    } else {
+                        randomComponentCheckEntity = previousEntity;
+                        randomExpectedComponents = Arrays.copyOf(components, 2);
+                    }
+                }
+            }
+
+            TestUtils.printTestIteration("Final size (ps:" + partitionSize + "|ri:" + removeInterval + ")", expectedFinalSize, sut2.size());
+            TestUtils.printTestIteration("Chunks used (ps:" + partitionSize + "|ri:" + removeInterval + ")", expectedChunksUsed, sut2.usedChunks());
+            assertEquals(expectedFinalSize, sut2.size());
+            assertEquals(expectedChunksUsed, sut2.usedChunks());
+            if (!randomEliminated) {
+                TestUtils.printTestIteration("Random component check used (ps:" + partitionSize + "|ri:" + removeInterval + ")",
+                        Arrays.toString(randomExpectedComponents), Arrays.toString(sut2.fetchEntityComponents(randomComponentCheckEntity)));
+                assertArrayEquals(randomExpectedComponents, sut2.fetchEntityComponents(randomComponentCheckEntity));
+            }
+        }
+    }
+
+    @Test
+    void testAdding500000_3() {
+        TestUtils.printTestHeader("testAdding500000_3 - STRESS TEST");
+
+        final int ITERATIONS = 5;
+        for (int i = 1; i <= ITERATIONS; i++) {
+
+            sut3 = new Partition(3, new IdHandler(12, 12), 3);
+            int partitionSize = (int) (Math.random() * 500000 + 2001);
+            int removeInterval = (int) (Math.random() * 100 + 31);
+            int expectedFinalSize = partitionSize - (partitionSize / removeInterval) - (partitionSize % removeInterval != 0 ? 1 : 0);
+            int expectedChunksUsed = (int) Math.ceil((float) expectedFinalSize / 4096);
+
+            int randomEntityComponentCheck = (int) (Math.random() * expectedFinalSize + 0);
+            int randomComponentCheckEntity = -1;
+            AlmaComponent[] randomExpectedComponents = null;
+            boolean randomEliminated = false;
+
+            int previousEntity;
+            for (int j = 0; j < partitionSize; j++) {
+                AlmaComponent[] components = new AlmaComponent[]{
+                        new C1((int) (Math.random() * Integer.MAX_VALUE + 1)),
+                        new C2((int) (Math.random() * Integer.MAX_VALUE + 1)),
+                        new C3((int) (Math.random() * Integer.MAX_VALUE + 1))
+                };
+                previousEntity = sut3.addEntity(components);
+                if (j % removeInterval == 0) {
+                    sut3.removeEntity(previousEntity);
+                }
+                if (j == randomEntityComponentCheck) {
+                    if (j % removeInterval == 0) {
+                        randomEliminated = true;
+                    } else {
+                        randomComponentCheckEntity = previousEntity;
+                        randomExpectedComponents = Arrays.copyOf(components, 3);
+                    }
+                }
+            }
+
+            TestUtils.printTestIteration("Final size (ps:" + partitionSize + "|ri:" + removeInterval + ")", expectedFinalSize, sut3.size());
+            TestUtils.printTestIteration("Chunks used (ps:" + partitionSize + "|ri:" + removeInterval + ")", expectedChunksUsed, sut3.usedChunks());
+            assertEquals(expectedFinalSize, sut3.size());
+            assertEquals(expectedChunksUsed, sut3.usedChunks());
+            if (!randomEliminated) {
+                TestUtils.printTestIteration("Random component check used (ps:" + partitionSize + "|ri:" + removeInterval + ")",
+                        Arrays.toString(randomExpectedComponents), Arrays.toString(sut3.fetchEntityComponents(randomComponentCheckEntity)));
+                assertArrayEquals(randomExpectedComponents, sut3.fetchEntityComponents(randomComponentCheckEntity));
+            }
+        }
     }
 }

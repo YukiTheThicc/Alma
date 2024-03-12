@@ -25,23 +25,29 @@ class IdHandlerTest {
     void basicTest() {
         TestUtils.printTestHeader("basicTest");
         int expectedPartitionBits = 12;
+        int expectedLinkCapacityBits = 12;
         int expectedMaxPartitions = 4095;
         int expectedMaxItems = 524287;
-        String expectedPartitionMask =  "01111111111110000000000000000000";
-        String expectedItemMask =       "00000000000001111111111111111111";
-        String expectedInvalidValue =   "10000000000000000000000000000000";
+        String expectedPartitionMask =      "01111111111110000000000000000000";
+        String expectedItemMask =           "00000000000001111111111111111111";
+        String expectedPartitionLinkMask =  "00000000000000000000111111111111";
+        String expectedInvalidValue =       "10000000000000000000000000000000";
         TestUtils.printTestIteration("Partition bits", expectedPartitionBits, IDm.partitionBits);
+        TestUtils.printTestIteration("Partition link capacity bits", expectedLinkCapacityBits, IDm.partitionLinkCapacityBits);
         TestUtils.printTestIteration("Max partitions", expectedMaxPartitions, IDm.maxPartitions);
         TestUtils.printTestIteration("Max items", expectedMaxItems, IDm.itemsPerPartition);
         TestUtils.printTestIteration("Partition mask", expectedPartitionMask, TestUtils.intToBinaryString(IDm.partitionMask));
         TestUtils.printTestIteration("Item mask", expectedItemMask, TestUtils.intToBinaryString(IDm.itemMask));
+        TestUtils.printTestIteration("Partition link mask", expectedPartitionLinkMask, TestUtils.intToBinaryString(IDm.partitionLinkMask));
         TestUtils.printTestIteration("Invalid value", expectedInvalidValue, TestUtils.intToBinaryString(IDm.invalidValue));
         assertAll(
                 () -> assertEquals(expectedPartitionBits, IDm.partitionBits),
+                () -> assertEquals(expectedLinkCapacityBits, IDm.partitionLinkCapacityBits),
                 () -> assertEquals(expectedMaxPartitions, IDm.maxPartitions),
                 () -> assertEquals(expectedMaxItems, IDm.itemsPerPartition),
                 () -> assertEquals(expectedPartitionMask, TestUtils.intToBinaryString(IDm.partitionMask)),
                 () -> assertEquals(expectedItemMask, TestUtils.intToBinaryString(IDm.itemMask)),
+                () -> assertEquals(expectedPartitionLinkMask, TestUtils.intToBinaryString(IDm.partitionLinkMask)),
                 () -> assertEquals(expectedInvalidValue, TestUtils.intToBinaryString(IDm.invalidValue))
         );
     }

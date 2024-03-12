@@ -5,29 +5,29 @@ import java.util.Arrays;
 /**
  * Simple ID stack to store reusable IDs
  */
-public class IdStack {
+public class IntStack {
 
     // CONSTANTS
     public static final int DEFAULT_SIZE = 256;
 
     // ATTRIBUTES
-    private int[] ids;
+    private int[] data;
     private int index = -1;
     private final int invalidInt;
 
     // CONSTRUCTORS
-    public IdStack(int invalidInt) {
+    public IntStack(int invalidInt) {
         this(DEFAULT_SIZE, invalidInt);
     }
 
-    public IdStack(int size, int invalidInt) {
-        this.ids = new int[size];
+    public IntStack(int size, int invalidInt) {
+        this.data = new int[size];
         this.invalidInt = invalidInt;
     }
 
     // GETTERS
-    public int[] getIds() {
-        return ids;
+    public int[] getData() {
+        return data;
     }
 
     public int getIndex() {
@@ -43,7 +43,7 @@ public class IdStack {
      */
     public int pop() {
         if (index == -1) return invalidInt;
-        int popped = ids[index];
+        int popped = data[index];
         index--;
         return popped;
     }
@@ -51,18 +51,18 @@ public class IdStack {
     /**
      * Pushes the ID into the stack
      *
-     * @param id ID to push
+     * @param data ID to push
      */
-    public void push(int id) {
-        if (index + 1 == ids.length) grow();
+    public void push(int data) {
+        if (index + 1 == this.data.length) grow();
         index++;
-        ids[index] = id;
+        this.data[index] = data;
     }
 
     /**
      * Grows the stack by a power of 2
      */
     private void grow() {
-        ids = Arrays.copyOf(ids, ids.length << 1);
+        data = Arrays.copyOf(data, data.length << 1);
     }
 }
