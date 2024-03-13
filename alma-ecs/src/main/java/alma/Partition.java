@@ -5,6 +5,7 @@ import alma.utils.AlmaException;
 import alma.utils.IntStack;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * A partition is a linked data structure that holds the data from a specific entity composition.
@@ -38,7 +39,7 @@ public final class Partition {
 
     // METHODS
 
-    /**
+    _/**
      * UNSAFE. Adds the passed list of components as an entity for this partition. Only checks size of the array
      *
      * @param components Array of component instances
@@ -146,5 +147,16 @@ public final class Partition {
         }
     }
 
-    public static class PartitionIterator<>
+    public static class PartitionIterator implements Iterator<AlmaComponent[]> {
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public AlmaComponent[] next() {
+            return new AlmaComponent[0];
+        }
+    }
 }

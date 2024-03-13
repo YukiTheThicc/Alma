@@ -1,4 +1,4 @@
-package alma;
+package alma.compositions;
 
 import alma.api.AlmaComponent;
 

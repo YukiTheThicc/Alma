@@ -1,6 +1,6 @@
 package internal;
 
-import alma.CompositionManager;
+import alma.compositions.CompositionManager;
 import alma.api.AlmaComponent;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;

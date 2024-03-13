@@ -5,7 +5,7 @@ package alma;
  *
  * @author Santiago Barreiro
  */
-public class EntityMapper {
+public final class EntityMapper {
 
     // CONSTANTS
 

@@ -1,5 +1,6 @@
-package alma;
+package alma.compositions;
 
+import alma.Partition;
 import alma.api.AlmaComponent;
 
 /**
@@ -13,6 +14,7 @@ public final class Composition {
     // ATTRIBUTES
     private final Class<?>[] componentTypes;
     private final AlmaComponent[] template;
+    private Partition partition;
     private final int size;
 
     // CONSTRUCTORS
@@ -32,6 +34,10 @@ public final class Composition {
     }
 
     // METHODS
+
+    public void setPartition(Partition partition) {
+        this.partition = partition;
+    }
 
     public void setTemplate(AlmaComponent[] components) {
         for (AlmaComponent c : components) {

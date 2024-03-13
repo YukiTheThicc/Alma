@@ -5,7 +5,7 @@ package alma;
  *
  * @author Santiago Barreiro
  */
-public class Scheduler {
+public final class Scheduler {
 
     // CONSTANTS
 
