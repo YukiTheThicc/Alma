@@ -20,9 +20,9 @@ public final class IdHandler {
     public final int partitionBits;                             // Bits reserved fot the partition segment
     public final int partitionBitShift;                         // Bits reserved fot the partition segment
     public final int partitionMask;                             // Masks other bits so only the partition segment is visible
-    public final int partitionLinkCapacityBits;                 // Partition link capacity bits
-    public final int partitionLinkCapacity;                     // Partition link capacity
-    public final int partitionLinkMask;                         // Masks the partition link bits
+    public final int partitionChunkCapacityBits;                // Partition chunk capacity bits
+    public final int partitionChunkCapacity;                    // Partition chunk capacity
+    public final int partitionChunkMask;                        // Masks the partition chunk bits
     public final int itemMask;                                  // Masks other bits so only the item segment is visible
     public final int invalidValue = 1 << MAX_BITS;              // Value indicating a non valid ID
 
@@ -39,9 +39,9 @@ public final class IdHandler {
         this.partitionBits = partitionBits;
         this.partitionBitShift = (MAX_BITS - partitionBits);
         this.maxPartitions = (1 << partitionBits) - 1;
-        this.partitionLinkCapacityBits = linkBits;
-        this.partitionLinkCapacity = (1 << linkBits);
-        this.partitionLinkMask = ((1 << (linkBits)) - 1);
+        this.partitionChunkCapacityBits = linkBits;
+        this.partitionChunkCapacity = (1 << linkBits);
+        this.partitionChunkMask = ((1 << (linkBits)) - 1);
         this.itemsPerPartition = (1 << partitionBitShift) - 1;
         this.partitionMask = maxPartitions << partitionBitShift;
         this.itemMask = (1 << partitionBitShift) - 1;
@@ -77,10 +77,10 @@ public final class IdHandler {
     }
 
     public int getPartitionChunkPos(int id) {
-        return id & partitionLinkMask;
+        return id & partitionChunkMask;
     }
 
     public int getPartitionChunk(int id) {
-        return (id & itemMask) >> partitionLinkCapacityBits;
+        return (id & itemMask) >> partitionChunkCapacityBits;
     }
 }

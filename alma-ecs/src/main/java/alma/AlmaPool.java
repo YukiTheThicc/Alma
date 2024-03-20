@@ -31,9 +31,9 @@ public final class AlmaPool {
     // METHODS
     public int createEntity(AlmaComponent[] composition) {
         CompositionHash targetHash = cm.getCompositionHash(composition);
-        Composition targetComposition = cm.getComposition(composition);
         // Lazily create the partition for this composition
         if (!partitions.containsKey(targetHash)) {
+            Composition targetComposition = cm.getComposition(composition);
             Partition newPartition = new Partition(++partitionIndex, idHandler, targetComposition.getSize());
             partitions.put(targetHash, newPartition);
             targetComposition.setPartition(newPartition);
@@ -45,7 +45,7 @@ public final class AlmaPool {
     public QueryResult queryEntitiesInnerJoin(Class<?>[] componentQuery) {
         Map<CompositionHash, Composition> compositions = cm.queryCompositionsInnerJoin(componentQuery);
         QueryResult result = new QueryResult(componentQuery, compositions);
-        return null;
+        return result;
     }
 
     public static class Factory {

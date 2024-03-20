@@ -3,6 +3,7 @@ package alma;
 import alma.api.AlmaComponent;
 import alma.utils.AlmaException;
 import alma.utils.IntStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -12,7 +13,7 @@ import java.util.Iterator;
  *
  * @author Santiago Barreiro
  */
-public final class Partition {
+public final class Partition{
 
     // ATTRIBUTES - MAIN
     private final IdHandler idHandler;                  // IdHandler for the partition
@@ -20,7 +21,7 @@ public final class Partition {
     private final PartitionChunk[] chunksSlots;         // Slots for the partitions chunks
     private final int stride;                           // Stride of the composition stored in the partition
     private final int iid;                              // Internal ID of the partition
-    private int usedChunks;                             // Current amount of used partitions
+    private int usedChunks;                             // Current amount of used chunks
     private int size;                                   // Current amount of stored entities
 
     public Partition(int iid, IdHandler idHandler) {
@@ -30,7 +31,7 @@ public final class Partition {
     public Partition(int iid, IdHandler idHandler, int stride) {
         this.idHandler = idHandler;
         this.idStack = new IntStack(idHandler.invalidValue);
-        this.chunksSlots = new PartitionChunk[1 << idHandler.partitionBitShift >> idHandler.partitionLinkCapacityBits];
+        this.chunksSlots = new PartitionChunk[1 << idHandler.partitionBitShift >> idHandler.partitionChunkCapacityBits];
         this.stride = stride;
         this.iid = iid;
         this.usedChunks = 0;
@@ -39,7 +40,7 @@ public final class Partition {
 
     // METHODS
 
-    _/**
+    /**
      * UNSAFE. Adds the passed list of components as an entity for this partition. Only checks size of the array
      *
      * @param components Array of component instances
@@ -57,7 +58,7 @@ public final class Partition {
         PartitionChunk chunk = chunksSlots[chunkId];
         // Lazily create target chunk if it was null before addition
         if (chunk == null) {
-            chunk = new PartitionChunk(idHandler.partitionLinkCapacity, stride, idHandler.invalidValue);
+            chunk = new PartitionChunk(idHandler.partitionChunkCapacity, stride, idHandler.invalidValue);
             chunksSlots[chunkId] = chunk;
             usedChunks++;
         }
@@ -75,8 +76,8 @@ public final class Partition {
         if (idHandler.getPartitionId(entity) != iid)
             throw new AlmaException("Tried to remove an entity with a different partition id");
         int chunkId = idHandler.getPartitionChunk(entity);
-        int chunkOPos = idHandler.getPartitionChunkPos(entity);
-        chunksSlots[chunkId].entitySlots[chunkOPos] = idHandler.invalidValue;
+        int chunkPos = idHandler.getPartitionChunkPos(entity);
+        chunksSlots[chunkId].entitySlots[chunkPos] = idHandler.invalidValue;
         idStack.push(entity);
         size--;
     }
@@ -115,6 +116,7 @@ public final class Partition {
         return entityComponents;
     }
 
+
     /**
      * Static private class that models a single partition chunk. Each chunk is of a fixed power-of-two size as to make
      * fast bitwise operations and fetch the chunk id and the entity chunk position
@@ -122,11 +124,13 @@ public final class Partition {
     private static class PartitionChunk {
 
         // ATTRIBUTES
+        private int size;
         private final int[] entitySlots;                    // List of entities handled by the partition chunk
         private final AlmaComponent[] componentsSlots;      // List of components handled by the partition chunk
 
         // CONSTRUCTORS
         private PartitionChunk(int chunkSize, int stride, int invalidValue) {
+            this.size = 0;
             this.entitySlots = new int[chunkSize];
             Arrays.fill(this.entitySlots, invalidValue);
             this.componentsSlots = new AlmaComponent[chunkSize * stride];
@@ -144,19 +148,6 @@ public final class Partition {
                 else componentsSlots[c_pos] = components[i];
             }
             entitySlots[pos] = entity;
-        }
-    }
-
-    public static class PartitionIterator implements Iterator<AlmaComponent[]> {
-
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public AlmaComponent[] next() {
-            return new AlmaComponent[0];
         }
     }
 }

@@ -57,6 +57,8 @@ class AlmaPoolTest {
 
     @Test
     void testQueryEntitiesFullJoin() {
-        QueryResult results = sut.queryEntitiesInnerJoin(new Class<?>[] {C1.class, C2.class});
+        sut.queryEntitiesInnerJoin(new Class<?>[] {C1.class, C2.class}).forEach(result -> {
+            System.out.println("" + result);
+        });
     }
 }

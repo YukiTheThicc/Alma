@@ -3,10 +3,9 @@ package alma;
 import alma.api.AlmaComponent;
 import alma.compositions.Composition;
 import alma.compositions.CompositionHash;
-import alma.utils.AlmaList;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * QueryResult
@@ -26,28 +25,16 @@ public final class QueryResult {
     }
 
     // METHODS
+    public QueryResult forEach(Consumer<Result> function) {
+        for (Composition c : queriedCompositions.values()) {
 
-    public record Result(AlmaComponent[] components, int entity) {
+        }
+
+        return this;
     }
 
-    public static class ResultsIterator implements Iterator<Result> {
+    // UTILITIES
 
-        private Partition currentPartition;
-        private int next;
-        private Result current;
-
-        public ResultsIterator(Partition firstPartition) {
-            currentPartition = firstPartition;
-        }
-
-        @Override
-        public boolean hasNext() {
-            currentPartition.;
-        }
-
-        @Override
-        public Result next() {
-            return null;
-        }
+    public record Result(AlmaComponent[] components, int entity) {
     }
 }
