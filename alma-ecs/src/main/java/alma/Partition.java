@@ -13,7 +13,7 @@ import java.util.Iterator;
  *
  * @author Santiago Barreiro
  */
-public final class Partition{
+public final class Partition implements Iterable<Entity> {
 
     // ATTRIBUTES - MAIN
     private final IdHandler idHandler;                  // IdHandler for the partition
@@ -76,8 +76,8 @@ public final class Partition{
         if (idHandler.getPartitionId(entity) != iid)
             throw new AlmaException("Tried to remove an entity with a different partition id");
         int chunkId = idHandler.getPartitionChunk(entity);
-        int chunkPos = idHandler.getPartitionChunkPos(entity);
-        chunksSlots[chunkId].entitySlots[chunkPos] = idHandler.invalidValue;
+        int chunkOPos = idHandler.getPartitionChunkPos(entity);
+        chunksSlots[chunkId].entitySlots[chunkOPos] = idHandler.invalidValue;
         idStack.push(entity);
         size--;
     }
@@ -116,6 +116,11 @@ public final class Partition{
         return entityComponents;
     }
 
+    @NotNull
+    @Override
+    public Iterator<Entity> iterator() {
+        return new PartitionIterator(this);
+    }
 
     /**
      * Static private class that models a single partition chunk. Each chunk is of a fixed power-of-two size as to make
@@ -124,13 +129,11 @@ public final class Partition{
     private static class PartitionChunk {
 
         // ATTRIBUTES
-        private int size;
         private final int[] entitySlots;                    // List of entities handled by the partition chunk
         private final AlmaComponent[] componentsSlots;      // List of components handled by the partition chunk
 
         // CONSTRUCTORS
         private PartitionChunk(int chunkSize, int stride, int invalidValue) {
-            this.size = 0;
             this.entitySlots = new int[chunkSize];
             Arrays.fill(this.entitySlots, invalidValue);
             this.componentsSlots = new AlmaComponent[chunkSize * stride];
@@ -148,6 +151,31 @@ public final class Partition{
                 else componentsSlots[c_pos] = components[i];
             }
             entitySlots[pos] = entity;
+        }
+    }
+
+    public static class PartitionIterator implements Iterator<Entity> {
+
+        private final Partition origin;
+        private int currentEntity;
+        private int currentChunk;
+
+        PartitionIterator(Partition origin) {
+            this.origin = origin;
+            currentEntity = -1;
+            currentChunk = -1;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (origin.usedChunks > 0 && currentChunk < origin.usedChunks) return true;
+            if (currentEntity < origin.idHandler.partitionChunkCapacity) ;
+            return false;
+        }
+
+        @Override
+        public Entity next() {
+            return new Entity(currentEntity, origin.fetchEntityComponents(currentEntity));
         }
     }
 }
