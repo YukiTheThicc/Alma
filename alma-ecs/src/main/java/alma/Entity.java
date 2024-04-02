@@ -5,17 +5,8 @@ import alma.api.AlmaComponent;
 /**
  * Entity
  *
+ * @param id ATTRIBUTES
  * @author Santiago Barreiro
  */
-public class Entity {
-
-    // ATTRIBUTES
-    public final int id;
-    public final AlmaComponent[] components;
-
-    // CONSTRUCTORS
-    public Entity(int id, AlmaComponent[] components) {
-        this.id = id;
-        this.components = components;
-    }
+public record Entity(int id, AlmaComponent[] components) {
 }

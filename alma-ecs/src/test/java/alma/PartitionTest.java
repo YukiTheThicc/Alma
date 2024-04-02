@@ -56,8 +56,8 @@ class PartitionTest {
     @BeforeEach
     void setUp() {
         sut1 = new Partition(1, new IdHandler());
-        sut2 = new Partition(2, new IdHandler(), 2);
-        sut3 = new Partition(3, new IdHandler(), 3);
+        sut2 = new Partition(2, new IdHandler(), 2, new int[]{1, 2});
+        sut3 = new Partition(3, new IdHandler(), 3, new int[]{1, 2, 3});
     }
 
     @AfterEach
@@ -158,7 +158,7 @@ class PartitionTest {
         final int ITERATIONS = 5;
         for (int i = 1; i <= ITERATIONS; i++) {
 
-            sut2 = new Partition(2, new IdHandler(12, 12), 2);
+            sut2 = new Partition(2, new IdHandler(12, 12), 2, new int[]{1, 2});
             int partitionSize = (int) (Math.random() * 500000 + 2001);
             int removeInterval = (int) (Math.random() * 100 + 31);
             int expectedFinalSize = partitionSize - (partitionSize / removeInterval) - (partitionSize % removeInterval != 0 ? 1 : 0);
@@ -205,7 +205,7 @@ class PartitionTest {
         final int ITERATIONS = 5;
         for (int i = 1; i <= ITERATIONS; i++) {
 
-            sut3 = new Partition(3, new IdHandler(12, 12), 3);
+            sut3 = new Partition(3, new IdHandler(12, 12), 3, new int[]{1, 2, 3});
             int partitionSize = (int) (Math.random() * 500000 + 2001);
             int removeInterval = (int) (Math.random() * 100 + 31);
             int expectedFinalSize = partitionSize - (partitionSize / removeInterval) - (partitionSize % removeInterval != 0 ? 1 : 0);
@@ -251,30 +251,23 @@ class PartitionTest {
 
     @Test
     void testPartitionIterator() {
+
+        TestUtils.printTestHeader("testPartitionIterator");
+        AlmaComponent[] expectedArray = new AlmaComponent[]{new C1(3), new C2(4)};
         sut2.addEntity(new AlmaComponent[]{new C1(1), new C2(2)});
-        sut2.addEntity(new AlmaComponent[]{new C1(3), new C2(4)});
+        sut2.addEntity(expectedArray);
         sut2.addEntity(new AlmaComponent[]{new C1(5), new C2(6)});
 
-        int toRemove = 0;
-        for (int i = 0; i < 10000; i++) {
-            if (i == 5000) toRemove = sut1.addEntity(new AlmaComponent[]{new C1(i)});
-            else sut1.addEntity(new AlmaComponent[]{new C1(i)});
-        }
-        sut1.removeEntity(toRemove);
-
-        Iterator<Entity> iTest1 = sut1.iterator();
         Iterator<Entity> iTest2 = sut2.iterator();
         Iterator<Entity> iFailure = sut3.iterator();
 
-        while (iTest1.hasNext()) {
-            Entity e = iTest1.next();
-            System.out.println(e.components[0].toString());
-        }
+        iTest2.next();
+        Entity e = iTest2.next();
 
-        while (iTest2.hasNext()) {
-            iTest2.next();
-        }
-
+        TestUtils.printTestIteration("has next after 2", true, iTest2.hasNext());
+        TestUtils.printTestIteration("2nd Entity components", expectedArray, e.components());
+        assertTrue(iTest2.hasNext());
+        assertArrayEquals(expectedArray, e.components());
         assertThrows(AlmaException.class, iFailure::next);
     }
 }

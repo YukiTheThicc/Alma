@@ -60,9 +60,9 @@ class AlmaPoolTest {
     @Test
     void testQueryEntitiesFullJoin() {
         sut.queryEntitiesInnerJoin(new Class<?>[]{C1.class, C2.class}).forEachEntity(result -> {
-            System.out.println(result.id);
-            for (int i = 0; i < result.components.length; i++) {
-                System.out.println(result.components[i]);
+            System.out.println(result.id());
+            for (int i = 0; i < result.components().length; i++) {
+                System.out.println(result.components()[i]);
             }
         });
     }

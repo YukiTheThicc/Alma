@@ -19,19 +19,21 @@ public final class Partition implements Iterable<Entity> {
     private final IdHandler idHandler;                  // IdHandler for the partition
     private final IntStack idStack;                     // IdStack of reusable IDs for the partition
     private final PartitionChunk[] chunksSlots;         // Slots for the partitions chunks
+    private final int[] componentIndex;
     private final int stride;                           // Stride of the composition stored in the partition
     private final int iid;                              // Internal ID of the partition
     private int usedChunks;                             // Current amount of used chunks
     private int size;                                   // Current amount of stored entities
 
     public Partition(int iid, IdHandler idHandler) {
-        this(iid, idHandler, 1);
+        this(iid, idHandler, 1, new int[]{1});
     }
 
-    public Partition(int iid, IdHandler idHandler, int stride) {
+    public Partition(int iid, IdHandler idHandler, int stride, int[] componentIndex) {
         this.idHandler = idHandler;
         this.idStack = new IntStack(idHandler.invalidValue);
         this.chunksSlots = new PartitionChunk[1 << idHandler.partitionBitShift >> idHandler.partitionChunkCapacityBits];
+        this.componentIndex = new int[stride];
         this.stride = stride;
         this.iid = iid;
         this.usedChunks = 0;
@@ -84,6 +86,7 @@ public final class Partition implements Iterable<Entity> {
 
     /**
      * Returns the current amount of entities stored within this partition
+     *
      * @return Amount of entities stored within this partition
      */
     public int size() {
@@ -92,6 +95,7 @@ public final class Partition implements Iterable<Entity> {
 
     /**
      * Returns the amount of chunks currently in use by this partition
+     *
      * @return Amount of chunks currently in use by this partition
      */
     public int usedChunks() {

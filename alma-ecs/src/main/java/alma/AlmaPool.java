@@ -16,9 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class AlmaPool {
 
     // ATTRIBUTES
-    private IdHandler idHandler;
-    private CompositionManager cm;
-    private Map<CompositionHash, Partition> partitions;
+    private final IdHandler idHandler;
+    private final CompositionManager cm;
+    private final Map<CompositionHash, Partition> partitions;
     private int partitionIndex = -1;
 
     // CONSTRUCTORS
@@ -34,7 +34,7 @@ public final class AlmaPool {
         // Lazily create the partition for this composition
         if (!partitions.containsKey(targetHash)) {
             Composition targetComposition = cm.getComposition(composition);
-            Partition newPartition = new Partition(++partitionIndex, idHandler, targetComposition.getSize());
+            Partition newPartition = new Partition(++partitionIndex, idHandler, targetComposition.getSize(), new int[]{});
             partitions.put(targetHash, newPartition);
             targetComposition.setPartition(newPartition);
         }
@@ -44,8 +44,7 @@ public final class AlmaPool {
 
     public QueryResult queryEntitiesInnerJoin(Class<?>[] componentQuery) {
         Map<CompositionHash, Composition> compositions = cm.queryCompositionsInnerJoin(componentQuery);
-        QueryResult result = new QueryResult(componentQuery, compositions);
-        return result;
+        return new QueryResult(componentQuery, compositions);
     }
 
     public static class Factory {

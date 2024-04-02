@@ -14,7 +14,6 @@ public final class Composition {
 
     // ATTRIBUTES
     private final Class<?>[] componentTypes;
-    private int[] componentIndex;
     private Partition partition = null;
     private final int size;
 
