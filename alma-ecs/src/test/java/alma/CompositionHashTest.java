@@ -1,6 +1,6 @@
 package alma;
 
-import alma.compositions.CompositionHash;
+import alma.utils.CompositionHash;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

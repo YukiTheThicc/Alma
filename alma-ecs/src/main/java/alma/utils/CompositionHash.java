@@ -1,4 +1,4 @@
-package alma.compositions;
+package alma.utils;
 
 import java.util.Arrays;
 

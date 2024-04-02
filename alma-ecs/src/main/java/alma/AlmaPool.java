@@ -2,7 +2,7 @@ package alma;
 
 import alma.api.AlmaComponent;
 import alma.compositions.Composition;
-import alma.compositions.CompositionHash;
+import alma.utils.CompositionHash;
 import alma.compositions.CompositionManager;
 
 import java.util.Map;

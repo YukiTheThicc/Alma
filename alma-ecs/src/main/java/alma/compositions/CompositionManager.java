@@ -1,6 +1,7 @@
 package alma.compositions;
 
 import alma.api.AlmaComponent;
+import alma.utils.CompositionHash;
 
 import java.util.Map;
 import java.util.Set;

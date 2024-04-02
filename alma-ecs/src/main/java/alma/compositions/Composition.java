@@ -14,7 +14,7 @@ public final class Composition {
 
     // ATTRIBUTES
     private final Class<?>[] componentTypes;
-    private AlmaComponent[] template = null;
+    private int[] componentIndex;
     private Partition partition = null;
     private final int size;
 
@@ -41,37 +41,6 @@ public final class Composition {
 
     public void setPartition(Partition partition) {
         this.partition = partition;
-    }
-
-    /**
-     * Forms a new template for this composition based on the passed components. Throws an exception if any component type
-     * for this composition is not included on the new template.
-     * @param components List of components to form the new template
-     */
-    public void setTemplate(AlmaComponent[] components) {
-        this.template = new AlmaComponent[componentTypes.length];
-        int cont = 0;
-        for (AlmaComponent c : components) {
-            for (int i = 0; i < componentTypes.length; i++) {
-                if (c.getClass() == componentTypes[i]) {
-                    template[i] = c;
-                    cont++;
-                }
-            }
-        }
-        if (cont != componentTypes.length) {
-            throw new AlmaException(this.toString() + ": Tried to set an invalid template for the composition");
-        }
-    }
-
-    public AlmaComponent[] createEntity() {
-        if (template != null) {
-            AlmaComponent[] newEntity = new AlmaComponent[template.length];
-
-            return newEntity;
-        } else {
-            throw new AlmaException(this.toString() + ": Tried to create entity from uninitialized template");
-        }
     }
 
     @Override
