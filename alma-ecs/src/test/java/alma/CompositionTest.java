@@ -23,7 +23,7 @@ class CompositionTest {
 
     @BeforeEach
     void setUp() {
-        sut = new Composition(new Class[]{C1.class, C2.class, C3.class});
+        sut = new Composition(new Class[]{C1.class, C2.class, C3.class}, new int[]{1, 2, 3});
     }
 
     @AfterEach
@@ -36,7 +36,19 @@ class CompositionTest {
         TestUtils.printTestHeader("testGetComponentTypes");
         Class<?>[] expected = new Class[]{C1.class, C2.class, C3.class};
         Class<?>[] actual = sut.getComponentTypes();
-        TestUtils.printTestIteration("Composition C1C2C3", expected, actual);
+        StringBuilder expectedString = new StringBuilder("[");
+        StringBuilder actualString = new StringBuilder("[");
+        for (int i = 0; i < expected.length; i++) {
+            expectedString.append(expected[i].getSimpleName());
+            if (i + 1 < expected.length) expectedString.append(", ");
+        }
+        expectedString.append("]");
+        for (int i = 0; i < actual.length; i++) {
+            actualString.append(actual[i].getSimpleName());
+            if (i + 1 < actual.length) actualString.append(", ");
+        }
+        actualString.append("]");
+        TestUtils.printTestIteration("Composition C1C2C3", expectedString.toString(), actualString.toString());
         assertArrayEquals(expected, actual);
     }
 

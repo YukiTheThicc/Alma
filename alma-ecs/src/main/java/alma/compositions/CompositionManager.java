@@ -3,6 +3,7 @@ package alma.compositions;
 import alma.api.AlmaComponent;
 import alma.utils.CompositionHash;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,15 +47,26 @@ public final class CompositionManager {
         for (int i = 0; i < components.length; i++) componentTypes[i] = components[i].getClass();
         return componentTypes;
     }
+
     //___ START of BASIC METHODS ___//
 
     /**
      * Retrieves the index of the type.
+     *
      * @param type Class to know the int value of
      * @return The int value of the class
      */
     public int getClassIndex(Class<?> type) {
         return classIndex.get(type);
+    }
+
+    public int[] getClassIndexArray(Class<?>[] types) {
+        int[] index = new int[types.length];
+        Arrays.fill(index, -1);
+        for (int i = 0; i < types.length; i++) {
+            index[classIndex.get(types[i])] = i;
+        }
+        return index;
     }
 
     /**
@@ -70,7 +82,8 @@ public final class CompositionManager {
         Composition c = compositions.get(cHash);
         if (c == null) {
             // Lazily create the composition corresponding to the components
-            c = new Composition(components);
+            int[] classIndexArray = getClassIndexArray(components);
+            c = new Composition(components, classIndexArray);
             compositions.put(cHash, c);
             for (Class<?> type : components) {
                 // Add composition to list of compositions that contain this class
@@ -146,29 +159,6 @@ public final class CompositionManager {
      * or even worsen performance. These methods should be thoroughly benchmarked with and without a result cache as to
      * understand if it is needed or not
      */
-
-    /**
-     * Commodity method to find compositions that include at least one of the received components types
-     * @param components Array of components that want to be found
-     * @return Unordered List of compositions that match the query
-     */
-    public Map<CompositionHash, Composition> queryCompositionsFullJoin(AlmaComponent[] components) {
-        return queryCompositionsFullJoin(getComponentClasses(components));
-    }
-
-    /**
-     * Gets the compositions that include at least one of the received components types
-     * @param components Array of component types
-     * @return Unordered List of compositions that match the query
-     */
-    public Map<CompositionHash, Composition> queryCompositionsFullJoin(Class<?>[] components) {
-        Map<CompositionHash, Composition> compositions = new ConcurrentHashMap<>();
-        for (Class<?> type : components) {
-            Map<CompositionHash, Composition> children = compositionTree.get(classIndex.get(type));
-            compositions.putAll(children);
-        }
-        return compositions;
-    }
 
     /**
      * Commodity method to find compositions that gets the compositions that include all the received component types.

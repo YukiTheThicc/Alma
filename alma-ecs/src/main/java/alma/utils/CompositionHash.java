@@ -40,6 +40,11 @@ public final class CompositionHash {
         hashCode = (int) (result ^ (result >>> 32));
     }
 
+    // GETTERS
+    public byte[] getCompTypes() {
+        return compTypes;
+    }
+
     // METHODS
     @Override
     public boolean equals(Object o) {

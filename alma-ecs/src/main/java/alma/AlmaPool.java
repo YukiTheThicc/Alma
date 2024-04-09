@@ -34,7 +34,7 @@ public final class AlmaPool {
         // Lazily create the partition for this composition
         if (!partitions.containsKey(targetHash)) {
             Composition targetComposition = cm.getComposition(composition);
-            Partition newPartition = new Partition(++partitionIndex, idHandler, targetComposition.getSize(), new int[]{});
+            Partition newPartition = new Partition(++partitionIndex, idHandler, targetComposition.getSize(), new Class<?>[2], targetHash.getCompTypes());
             partitions.put(targetHash, newPartition);
             targetComposition.setPartition(newPartition);
         }

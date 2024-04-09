@@ -56,8 +56,8 @@ class PartitionTest {
     @BeforeEach
     void setUp() {
         sut1 = new Partition(1, new IdHandler());
-        sut2 = new Partition(2, new IdHandler(), 2, new int[]{1, 2});
-        sut3 = new Partition(3, new IdHandler(), 3, new int[]{1, 2, 3});
+        sut2 = new Partition(2, new IdHandler(), 2, new Class<?>[]{}, new byte[]{1, 2});
+        sut3 = new Partition(3, new IdHandler(), 3, new Class<?>[]{}, new byte[]{1, 2, 3});
     }
 
     @AfterEach
@@ -139,11 +139,13 @@ class PartitionTest {
     @Test
     void testFetchEntityComponents() {
         TestUtils.printTestHeader("testFetchEntityComponents");
-        AlmaComponent[] expected = new AlmaComponent[]{new C1(), new C2(), new C3()};
-        sut3.addEntity(new AlmaComponent[]{new C1(), new C2(), new C3()});
+        AlmaComponent[] expected = new AlmaComponent[]{new C1(4), new C2(5), new C3(6)};
+        sut3.addEntity(new AlmaComponent[]{new C1(1), new C2(2), new C3(3)});
         int expectedId = sut3.addEntity(expected);
-        sut3.addEntity(new AlmaComponent[]{new C1(), new C2(), new C3()});
+        sut3.addEntity(new AlmaComponent[]{new C1(4), new C2(5), new C3(6)});
         AlmaComponent[] actual = sut3.fetchEntityComponents(expectedId);
+        AlmaComponent[] actualSelect2of3 = sut3.fetchEntityComponents(expectedId, new int[]{1, 2});
+
         TestUtils.printTestIteration("Fetched components", expected, actual);
         assertArrayEquals(expected, actual);
         assertThrows(AlmaException.class, () -> {
@@ -158,7 +160,7 @@ class PartitionTest {
         final int ITERATIONS = 5;
         for (int i = 1; i <= ITERATIONS; i++) {
 
-            sut2 = new Partition(2, new IdHandler(12, 12), 2, new int[]{1, 2});
+            sut2 = new Partition(2, new IdHandler(12, 12), 2, new Class<?>[2], new byte[]{1, 2});
             int partitionSize = (int) (Math.random() * 500000 + 2001);
             int removeInterval = (int) (Math.random() * 100 + 31);
             int expectedFinalSize = partitionSize - (partitionSize / removeInterval) - (partitionSize % removeInterval != 0 ? 1 : 0);
@@ -205,7 +207,7 @@ class PartitionTest {
         final int ITERATIONS = 5;
         for (int i = 1; i <= ITERATIONS; i++) {
 
-            sut3 = new Partition(3, new IdHandler(12, 12), 3, new int[]{1, 2, 3});
+            sut3 = new Partition(3, new IdHandler(12, 12), 3, new Class<?>[3], new byte[]{1, 2, 3});
             int partitionSize = (int) (Math.random() * 500000 + 2001);
             int removeInterval = (int) (Math.random() * 100 + 31);
             int expectedFinalSize = partitionSize - (partitionSize / removeInterval) - (partitionSize % removeInterval != 0 ? 1 : 0);

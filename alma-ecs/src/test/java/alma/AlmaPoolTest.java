@@ -47,9 +47,11 @@ class AlmaPoolTest {
         AlmaComponent[] composition1 = new AlmaComponent[]{new C1(1)};
         AlmaComponent[] composition12 = new AlmaComponent[]{new C1(2), new C2(3)};
         AlmaComponent[] composition123 = new AlmaComponent[]{new C1(4), new C2(5), new C3(6)};
+        AlmaComponent[] composition23 = new AlmaComponent[]{new C2(7), new C3(8)};
         sut.createEntity(composition1);
         sut.createEntity(composition12);
         sut.createEntity(composition123);
+        sut.createEntity(composition23);
     }
 
     @Test

@@ -15,28 +15,26 @@ import java.util.function.Consumer;
 public final class QueryResult {
 
     // ATTRIBUTES
-    private Class<?>[] query;
-    private Map<CompositionHash, Composition> queriedCompositions;
+    private final Class<?>[] query;
+    private final Map<CompositionHash, Composition> queriedCompositions;
 
     // CONSTRUCTORS
     public QueryResult(Class<?>[] query, Map<CompositionHash, Composition> queriedCompositions) {
         this.query = query;
         this.queriedCompositions = queriedCompositions;
+        /*for () {
+
+        }*/
     }
 
     // METHODS
     public QueryResult forEachEntity(Consumer<Entity> function) {
         for (Composition c : queriedCompositions.values()) {
-            Iterator<Entity> i = c.getPartition().iterator();
-            while (i.hasNext()) {
-                function.accept(i.next());
+            Iterator<Entity> filteredIterator = c.getPartition().filteredIterator(query);
+            for (Entity entity : c.getPartition()) {
+                function.accept(entity);
             }
         }
         return this;
-    }
-
-    // UTILITIES
-
-    public record Result(AlmaComponent[] components, int entity) {
     }
 }

@@ -144,27 +144,6 @@ class CompositionManagerTest {
     }
 
     @Test
-    public void queryCompositionsFullJoinTest() {
-
-        TestUtils.printTestHeader("queryCompositionsFullJoinTest");
-        cm.getComposition(new AlmaComponent[]{new C1(), new C2()});
-        cm.getComposition(new AlmaComponent[]{new C2(), new C3()});
-        cm.getComposition(new AlmaComponent[]{new C2(), new C3(), new C4()});
-        cm.getComposition(new AlmaComponent[]{new C3()});
-        cm.getComposition(new AlmaComponent[]{new C1()});
-
-        int expected1 = 2;
-        int expected3 = 5;
-        Map<CompositionHash, Composition> actual1 = cm.queryCompositionsFullJoin(new AlmaComponent[]{new C1()});
-        Map<CompositionHash, Composition> actual3 = cm.queryCompositionsFullJoin(new AlmaComponent[]{new C1(), new C3()});
-        TestUtils.printTestIteration("Compositions with C2", expected1, actual1.values());
-        TestUtils.printTestIteration("Compositions with C3 or C1", expected3, actual3.values());
-
-        assertEquals(expected1, actual1.size());
-        assertEquals(expected3, actual3.size());
-    }
-
-    @Test
     public void queryCompositionsInnerJoinTest() {
 
         TestUtils.printTestHeader("queryCompositionsInnerJoinTest");

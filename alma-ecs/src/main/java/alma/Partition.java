@@ -19,21 +19,19 @@ public final class Partition implements Iterable<Entity> {
     private final IdHandler idHandler;                  // IdHandler for the partition
     private final IntStack idStack;                     // IdStack of reusable IDs for the partition
     private final PartitionChunk[] chunksSlots;         // Slots for the partitions chunks
-    private final int[] componentIndex;
     private final int stride;                           // Stride of the composition stored in the partition
     private final int iid;                              // Internal ID of the partition
     private int usedChunks;                             // Current amount of used chunks
     private int size;                                   // Current amount of stored entities
 
     public Partition(int iid, IdHandler idHandler) {
-        this(iid, idHandler, 1, new int[]{1});
+        this(iid, idHandler, 1, new Class<?>[0], new byte[]{1});
     }
 
-    public Partition(int iid, IdHandler idHandler, int stride, int[] componentIndex) {
+    public Partition(int iid, IdHandler idHandler, int stride, Class<?>[] componentTypes, byte[] componentIndex) {
         this.idHandler = idHandler;
         this.idStack = new IntStack(idHandler.invalidValue);
         this.chunksSlots = new PartitionChunk[1 << idHandler.partitionBitShift >> idHandler.partitionChunkCapacityBits];
-        this.componentIndex = new int[stride];
         this.stride = stride;
         this.iid = iid;
         this.usedChunks = 0;
@@ -115,9 +113,33 @@ public final class Partition implements Iterable<Entity> {
             throw new AlmaException("Tried to fetch components of a non-existing entity");
         AlmaComponent[] entityComponents = new AlmaComponent[stride];
         int chunkId = idHandler.getPartitionChunk(entity);
-        int first = idHandler.getPartitionChunkPos(entity);
-        java.lang.System.arraycopy(chunksSlots[chunkId].componentsSlots, first * stride, entityComponents, 0, stride);
+        int first = idHandler.getPartitionChunkPos(entity) * stride;
+        java.lang.System.arraycopy(chunksSlots[chunkId].componentsSlots, first, entityComponents, 0, stride);
         return entityComponents;
+    }
+
+    /**
+     * Fetches the components from an entity of the specified types and in that order.
+     *
+     * @param entity ID of the entity to recover the components from
+     * @return The target components of the entity
+     */
+    public AlmaComponent[] fetchEntityComponents(int entity, int[] componentIndex) {
+        if (idHandler.getPartitionId(entity) != iid)
+            throw new AlmaException("Tried to retrieve components for an entity of a different composition");
+        if (idHandler.getItemId(entity) == idHandler.invalidValue)
+            throw new AlmaException("Tried to fetch components of a non-existing entity");
+        AlmaComponent[] entityComponents = new AlmaComponent[componentIndex.length];
+        int chunkId = idHandler.getPartitionChunk(entity);
+        int first = idHandler.getPartitionChunkPos(entity) * stride;
+        for (int i = 0; i < componentIndex.length; i++) {
+            entityComponents[i] = chunksSlots[chunkId].componentsSlots[first + componentIndex[i]];
+        }
+        return entityComponents;
+    }
+
+    public Iterator<Entity> filteredIterator(int[] relevantComponents) {
+        return new PartitionIterator(this, relevantComponents);
     }
 
     @NotNull
@@ -160,20 +182,41 @@ public final class Partition implements Iterable<Entity> {
 
     public static class PartitionIterator implements Iterator<Entity> {
 
+        // ATTRIBUTES
         private final Partition origin;
+        private final int maxChunkCapacity;
+        private final int[] filter;
         private int currentEntity;
         private int nextEntityIndex;
         private int chunkIndex;
         private int iteratedEntities;
-        private final int maxChunkCapacity;
 
+        // CONSTRUCTORS
         PartitionIterator(Partition origin) {
             this.origin = origin;
             this.nextEntityIndex = 0;
+            this.filter = null;
             this.chunkIndex = 0;
             this.currentEntity = origin.idHandler.invalidValue;
             this.iteratedEntities = 0;
             this.maxChunkCapacity = origin.idHandler.partitionChunkCapacity;
+        }
+
+        PartitionIterator(Partition origin, int[] filter) {
+            this.origin = origin;
+            this.nextEntityIndex = 0;
+            this.filter = filter;
+            this.chunkIndex = 0;
+            this.currentEntity = origin.idHandler.invalidValue;
+            this.iteratedEntities = 0;
+            this.maxChunkCapacity = origin.idHandler.partitionChunkCapacity;
+        }
+
+        // METHODS
+        public void reset() {
+            this.nextEntityIndex = 0;
+            this.chunkIndex = 0;
+            this.iteratedEntities = 0;
         }
 
         @Override
@@ -192,7 +235,9 @@ public final class Partition implements Iterable<Entity> {
                 if (currentEntity != origin.idHandler.invalidValue) {
                     foundNext = true;
                     iteratedEntities++;
-                    e = new Entity(currentEntity, origin.fetchEntityComponents(currentEntity));
+                    e = filter == null ?
+                            new Entity(currentEntity, origin.fetchEntityComponents(currentEntity)) :
+                            new Entity(currentEntity, origin.fetchEntityComponents(currentEntity, filter));
                 }
 
                 // Handle next entity and chunk index

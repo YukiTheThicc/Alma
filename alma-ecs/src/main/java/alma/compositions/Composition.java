@@ -1,8 +1,6 @@
 package alma.compositions;
 
 import alma.Partition;
-import alma.api.AlmaComponent;
-import alma.utils.AlmaException;
 
 /**
  * A composition is a structure describing the composition of one type of entity. It holds a map of the component classes
@@ -14,13 +12,15 @@ public final class Composition {
 
     // ATTRIBUTES
     private final Class<?>[] componentTypes;
-    private Partition partition = null;
+    private final int[] componentIndex;
     private final int size;
+    private Partition partition = null;
 
     // CONSTRUCTORS
-    public Composition(Class<?>[] componentTypes) {
+    public Composition(Class<?>[] componentTypes, int[] componentIndex) {
         this.componentTypes = componentTypes;
         this.size = componentTypes.length;
+        this.componentIndex = componentIndex;
     }
 
     // GETTERS & SETTERS
@@ -36,11 +36,11 @@ public final class Composition {
         return partition;
     }
 
-    // METHODS
-
     public void setPartition(Partition partition) {
         this.partition = partition;
     }
+
+    // METHODS
 
     @Override
     public String toString() {
