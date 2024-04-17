@@ -12,15 +12,13 @@ public final class Composition {
 
     // ATTRIBUTES
     private final Class<?>[] componentTypes;
-    private final int[] componentIndex;
     private final int size;
     private Partition partition = null;
 
     // CONSTRUCTORS
-    public Composition(Class<?>[] componentTypes, int[] componentIndex) {
+    public Composition(Class<?>[] componentTypes) {
         this.componentTypes = componentTypes;
         this.size = componentTypes.length;
-        this.componentIndex = componentIndex;
     }
 
     // GETTERS & SETTERS

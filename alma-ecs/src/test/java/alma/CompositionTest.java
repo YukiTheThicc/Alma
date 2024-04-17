@@ -23,7 +23,7 @@ class CompositionTest {
 
     @BeforeEach
     void setUp() {
-        sut = new Composition(new Class[]{C1.class, C2.class, C3.class}, new int[]{1, 2, 3});
+        sut = new Composition(new Class[]{C1.class, C2.class, C3.class});
     }
 
     @AfterEach

@@ -16,6 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class CompositionManager {
 
+    // CONSTANTS
+    public static final int MAX_COMPONENTS = 1 << 8;
+
     // ATTRIBUTES
     private int index = 1;
     // Used to map each class to an Integer value
@@ -48,20 +51,25 @@ public final class CompositionManager {
         return componentTypes;
     }
 
-    //___ START of BASIC METHODS ___//
-
     /**
      * Retrieves the index of the type.
      *
      * @param type Class to know the int value of
      * @return The int value of the class
      */
-    public int getClassIndex(Class<?> type) {
+    public int getComponentIndex(Class<?> type) {
         return classIndex.get(type);
     }
 
-    public int[] getClassIndexArray(Class<?>[] types) {
-        int[] index = new int[types.length];
+    /**
+     * Retrieves the index for each member of a class array. Returns an int array with the values of the indexes for each
+     * class, each one corresponding to the class element on the same position as the original array
+     *
+     * @param types Array of class types
+     * @return Array containing the int indexes of the classes
+     */
+    public int[] getComponentIndexArray(Class<?>[] types) {
+        int[] index = new int[MAX_COMPONENTS];
         Arrays.fill(index, -1);
         for (int i = 0; i < types.length; i++) {
             index[classIndex.get(types[i])] = i;
@@ -82,8 +90,7 @@ public final class CompositionManager {
         Composition c = compositions.get(cHash);
         if (c == null) {
             // Lazily create the composition corresponding to the components
-            int[] classIndexArray = getClassIndexArray(components);
-            c = new Composition(components, classIndexArray);
+            c = new Composition(components);
             compositions.put(cHash, c);
             for (Class<?> type : components) {
                 // Add composition to list of compositions that contain this class
@@ -148,34 +155,32 @@ public final class CompositionManager {
         return getCompositionHash(getComponentClasses(components));
     }
 
-    //___ END of BASIC METHODS ___//
-
-    //___ START of COMPOSITION QUERY METHODS ___//
-
     /*
      * Composition query methods. At this moment, no cache is used. A cache could be used as it is common that systems
      * may use more complex queries which results, if not cached, will have to be recalculated every time. This could
      * potentially add unnecessary overhead, or it may be the case that the cache is either overkill, not improve
-     * or even worsen performance. These methods should be thoroughly benchmarked with and without a result cache as to
+     * or even worsen performance. These methods should be thoroughly benchmarked with and without a results cache as to
      * understand if it is needed or not
      */
 
     /**
      * Commodity method to find compositions that gets the compositions that include all the received component types.
+     *
      * @param components Array of components that want to be found
      * @return Map of compositions that match the query
      */
-    public Map<CompositionHash, Composition> queryCompositionsInnerJoin(AlmaComponent[] components) {
-        return queryCompositionsInnerJoin(getComponentClasses(components));
+    public Map<CompositionHash, Composition> queryCompositionsWith(AlmaComponent[] components) {
+        return queryCompositionsWith(getComponentClasses(components));
     }
 
     /**
      * Gets the compositions that include the passed composition. In other words, gets the compositions that have all
      * the received component types.
+     *
      * @param components Array of component types
      * @return Map of compositions that match the query
      */
-    public Map<CompositionHash, Composition> queryCompositionsInnerJoin(Class<?>[] components) {
+    public Map<CompositionHash, Composition> queryCompositionsWith(Class<?>[] components) {
         Map<CompositionHash, Composition> compositions = null;
         for (Class<?> type : components) {
             Map<CompositionHash, Composition> typeCompositions = compositionTree.get(classIndex.get(type));
@@ -189,5 +194,4 @@ public final class CompositionManager {
         }
         return compositions;
     }
-    //___ END of COMPOSITION QUERY METHODS ___//
 }

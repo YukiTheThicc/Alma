@@ -13,25 +13,23 @@ import java.util.Iterator;
  *
  * @author Santiago Barreiro
  */
-public final class Partition implements Iterable<Entity> {
+public final class Partition {
 
     // ATTRIBUTES - MAIN
     private final IdHandler idHandler;                  // IdHandler for the partition
     private final IntStack idStack;                     // IdStack of reusable IDs for the partition
     private final PartitionChunk[] chunksSlots;         // Slots for the partitions chunks
+    private final int[] componentLayout;                // Represents the order of the components inside the chunks
     private final int stride;                           // Stride of the composition stored in the partition
     private final int iid;                              // Internal ID of the partition
     private int usedChunks;                             // Current amount of used chunks
     private int size;                                   // Current amount of stored entities
 
-    public Partition(int iid, IdHandler idHandler) {
-        this(iid, idHandler, 1, new Class<?>[0], new byte[]{1});
-    }
-
-    public Partition(int iid, IdHandler idHandler, int stride, Class<?>[] componentTypes, byte[] componentIndex) {
+    public Partition(int iid, IdHandler idHandler, int stride, int[] componentLayout) {
         this.idHandler = idHandler;
         this.idStack = new IntStack(idHandler.invalidValue);
         this.chunksSlots = new PartitionChunk[1 << idHandler.partitionBitShift >> idHandler.partitionChunkCapacityBits];
+        this.componentLayout = componentLayout;
         this.stride = stride;
         this.iid = iid;
         this.usedChunks = 0;
@@ -40,15 +38,49 @@ public final class Partition implements Iterable<Entity> {
 
     // METHODS
 
+    private AlmaComponent[] alignComponents(AlmaComponent[] components) {
+        if (components.length != stride)
+            throw new AlmaException("Tried to insert wrong amount of components in partition");
+        AlmaComponent[] alignedComponents = new AlmaComponent[components.length];
+        for (AlmaComponent component : components) {
+
+        }
+        return alignedComponents;
+    }
+
     /**
-     * UNSAFE. Adds the passed list of components as an entity for this partition. Only checks size of the array
+     * UNSAFE. Adds the passed list of components as an entity for this partition. Assumes that the components are aligned
+     * with the component layout for the partition
      *
      * @param components Array of component instances
      * @return ID of the new entity
      */
-    public int addEntity(AlmaComponent[] components) {
-        if (components.length != stride)
-            throw new AlmaException("Tried to insert wrong amount of components in partition");
+    public int addEntityUnsafe(AlmaComponent[] components) {
+        int id = idStack.pop();
+        if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
+        int chunkId = idHandler.getPartitionChunk(id);
+        int chunkPos = idHandler.getPartitionChunkPos(id);
+
+        PartitionChunk chunk = chunksSlots[chunkId];
+        // Lazily create target chunk if it was null before addition
+        if (chunk == null) {
+            chunk = new PartitionChunk(idHandler.partitionChunkCapacity, stride, idHandler.invalidValue);
+            chunksSlots[chunkId] = chunk;
+            usedChunks++;
+        }
+        chunk.setEntity(chunkPos, id, stride, components);
+        size++;
+        return id;
+    }
+
+    /**
+     * Adds the passed list of components as an entity for this partition. Orders the components to match the partition
+     * layout.
+     *
+     * @param components Array of component instances
+     * @return ID of the new entity
+     */
+    public int addEntitySafe(AlmaComponent[] components) {
 
         int id = idStack.pop();
         if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
@@ -129,28 +161,30 @@ public final class Partition implements Iterable<Entity> {
             throw new AlmaException("Tried to retrieve components for an entity of a different composition");
         if (idHandler.getItemId(entity) == idHandler.invalidValue)
             throw new AlmaException("Tried to fetch components of a non-existing entity");
+
         AlmaComponent[] entityComponents = new AlmaComponent[componentIndex.length];
         int chunkId = idHandler.getPartitionChunk(entity);
         int first = idHandler.getPartitionChunkPos(entity) * stride;
         for (int i = 0; i < componentIndex.length; i++) {
-            entityComponents[i] = chunksSlots[chunkId].componentsSlots[first + componentIndex[i]];
+            entityComponents[i] = chunksSlots[chunkId].componentsSlots[first + this.componentLayout[componentIndex[i]]];
         }
         return entityComponents;
     }
 
+    /**
+     * Creates an iterator for the Partition that filters which component types are fetched within the partition. Does not
+     * check for invalid component indexes or if the components themselves are stored in this composition.
+     *
+     * @param relevantComponents Array of he indexes of the components to be fetched
+     * @return An iterator that will walk through all available entities in the partition and return them with just the desired component types
+     */
     public Iterator<Entity> filteredIterator(int[] relevantComponents) {
         return new PartitionIterator(this, relevantComponents);
     }
 
-    @NotNull
-    @Override
-    public Iterator<Entity> iterator() {
-        return new PartitionIterator(this);
-    }
-
     /**
      * Static private class that models a single partition chunk. Each chunk is of a fixed power-of-two size as to make
-     * fast bitwise operations and fetch the chunk id and the entity chunk position
+     * fast bitwise operations as to fetch the chunk id and the entity chunk position
      */
     private static class PartitionChunk {
 
@@ -166,10 +200,26 @@ public final class Partition implements Iterable<Entity> {
         }
 
         // METHODS
+
+        /**
+         * Gets the entity int value at the desired position. Does not check if the position is valid
+         *
+         * @param pos Position to fetch the int value of the entity
+         * @return Int value (internal ID) of the entity within the desired position
+         */
         private int getEntityAt(int pos) {
             return entitySlots[pos];
         }
 
+        /**
+         * Sets the entity in the desired position to the desired internal ID and its corresponding components to the passed
+         * component array.
+         *
+         * @param pos        Position of the entity within the chunk
+         * @param entity     Internal ID of the entity
+         * @param stride     Total offset or size of the component array
+         * @param components Array of components corresponding to the new entity
+         */
         private void setEntity(int pos, int entity, int stride, AlmaComponent[] components) {
             for (int i = 0; i < stride; i++) {
                 int c_pos = pos * stride + i;
@@ -180,6 +230,11 @@ public final class Partition implements Iterable<Entity> {
         }
     }
 
+    /**
+     * An iterator class for partitions. By design, it will walk through every instanced chunk of the Partition and return
+     * an entity only when the internal ID of the entity is valid. The fetched components for each entity can be selected
+     * by using a white list type filter, that will set the index values of the component classes to be fetched.
+     */
     public static class PartitionIterator implements Iterator<Entity> {
 
         // ATTRIBUTES
@@ -213,17 +268,32 @@ public final class Partition implements Iterable<Entity> {
         }
 
         // METHODS
+
+        /**
+         * Resets the iterator so it can be reused
+         */
         public void reset() {
             this.nextEntityIndex = 0;
             this.chunkIndex = 0;
             this.iteratedEntities = 0;
         }
 
+        /**
+         * Checks if there are more entities in the partition
+         *
+         * @return True if the number of iterated entities is less than the size of the partition
+         */
         @Override
         public boolean hasNext() {
             return iteratedEntities < origin.size;
         }
 
+        /**
+         * Fetches the next valid entity within the partition. It loops through all the invalid elements in each chunk until
+         * it finds one with a valid ID.
+         *
+         * @return An entity instance with the filtered components
+         */
         @Override
         public Entity next() {
             if (origin.usedChunks == 0 || chunkIndex >= origin.usedChunks)

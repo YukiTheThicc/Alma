@@ -62,9 +62,9 @@ class CompositionManagerTest {
         int expectedC1 = 2;
         int expectedC2 = 3;
         int expectedC3 = 1;
-        int actualC1 = cm.getClassIndex(C1.class);
-        int actualC2 = cm.getClassIndex(C2.class);
-        int actualC3 = cm.getClassIndex(C3.class);
+        int actualC1 = cm.getComponentIndex(C1.class);
+        int actualC2 = cm.getComponentIndex(C2.class);
+        int actualC3 = cm.getComponentIndex(C3.class);
 
         TestUtils.printTestIteration("C1", expectedC1, actualC1);
         TestUtils.printTestIteration("C1", expectedC2, actualC2);
@@ -155,8 +155,8 @@ class CompositionManagerTest {
 
         int expected1 = 2;
         int expected3 = 2;
-        Map<CompositionHash, Composition> actual1 = cm.queryCompositionsInnerJoin(new AlmaComponent[]{new C1()});
-        Map<CompositionHash, Composition> actual3 = cm.queryCompositionsInnerJoin(new AlmaComponent[]{new C2(), new C3()});
+        Map<CompositionHash, Composition> actual1 = cm.queryCompositionsWith(new AlmaComponent[]{new C1()});
+        Map<CompositionHash, Composition> actual3 = cm.queryCompositionsWith(new AlmaComponent[]{new C2(), new C3()});
         TestUtils.printTestIteration("Compositions with C1", expected1, actual1.values());
         TestUtils.printTestIteration("Compositions with C2 and C3", expected3, actual3.values());
 

@@ -29,22 +29,28 @@ public final class AlmaPool {
     }
 
     // METHODS
+    private void createPartition(CompositionHash hash, Composition composition) {
+        int[] componentIndex = cm.getComponentIndexArray(composition.getComponentTypes());
+        Partition newPartition = new Partition(++partitionIndex, idHandler, composition.getSize(), componentIndex);
+        partitions.put(hash, newPartition);
+        composition.setPartition(newPartition);
+    }
+
     public int createEntity(AlmaComponent[] composition) {
         CompositionHash targetHash = cm.getCompositionHash(composition);
         // Lazily create the partition for this composition
-        if (!partitions.containsKey(targetHash)) {
-            Composition targetComposition = cm.getComposition(composition);
-            Partition newPartition = new Partition(++partitionIndex, idHandler, targetComposition.getSize(), new Class<?>[2], targetHash.getCompTypes());
-            partitions.put(targetHash, newPartition);
-            targetComposition.setPartition(newPartition);
-        }
+        if (!partitions.containsKey(targetHash)) createPartition(targetHash, cm.getComposition(composition));
         Partition targetPartition = partitions.get(targetHash);
-        return targetPartition.addEntity(composition);
+        return targetPartition.addEntitySafe(composition);
     }
 
-    public QueryResult queryEntitiesInnerJoin(Class<?>[] componentQuery) {
-        Map<CompositionHash, Composition> compositions = cm.queryCompositionsInnerJoin(componentQuery);
-        return new QueryResult(componentQuery, compositions);
+    public QueryResult queryEntitiesWith(Class<?>[] componentQuery) {
+        Map<CompositionHash, Composition> compositions = cm.queryCompositionsWith(componentQuery);
+        int[] componentsIndex = new int[componentQuery.length];
+        for (int i = 0; i < componentQuery.length; i++) {
+            componentsIndex[i] = cm.getComponentIndex(componentQuery[i]);
+        }
+        return new QueryResult(componentsIndex, compositions);
     }
 
     public static class Factory {

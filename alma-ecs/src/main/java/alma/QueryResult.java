@@ -15,24 +15,21 @@ import java.util.function.Consumer;
 public final class QueryResult {
 
     // ATTRIBUTES
-    private final Class<?>[] query;
+    private final int[] componentIndex;
     private final Map<CompositionHash, Composition> queriedCompositions;
 
     // CONSTRUCTORS
-    public QueryResult(Class<?>[] query, Map<CompositionHash, Composition> queriedCompositions) {
-        this.query = query;
+    public QueryResult(int[] query, Map<CompositionHash, Composition> queriedCompositions) {
+        this.componentIndex = query;
         this.queriedCompositions = queriedCompositions;
-        /*for () {
-
-        }*/
     }
 
     // METHODS
     public QueryResult forEachEntity(Consumer<Entity> function) {
         for (Composition c : queriedCompositions.values()) {
-            Iterator<Entity> filteredIterator = c.getPartition().filteredIterator(query);
-            for (Entity entity : c.getPartition()) {
-                function.accept(entity);
+            Iterator<Entity> filteredIterator = c.getPartition().filteredIterator(componentIndex);
+            while (filteredIterator.hasNext()) {
+                function.accept(filteredIterator.next());
             }
         }
         return this;
