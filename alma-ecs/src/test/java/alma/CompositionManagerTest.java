@@ -62,9 +62,9 @@ class CompositionManagerTest {
         int expectedC1 = 2;
         int expectedC2 = 3;
         int expectedC3 = 1;
-        int actualC1 = cm.getComponentIndex(C1.class);
-        int actualC2 = cm.getComponentIndex(C2.class);
-        int actualC3 = cm.getComponentIndex(C3.class);
+        int actualC1 = cm.getClassIndex().get(C1.class);
+        int actualC2 = cm.getClassIndex().get(C2.class);
+        int actualC3 = cm.getClassIndex().get(C3.class);
 
         TestUtils.printTestIteration("C1", expectedC1, actualC1);
         TestUtils.printTestIteration("C1", expectedC2, actualC2);
@@ -86,9 +86,9 @@ class CompositionManagerTest {
         int actual3 = 34;
 
         CompositionManager cm = new CompositionManager();
-        CompositionHash composition1 = cm.getCompositionHash(new AlmaComponent[]{});
-        CompositionHash compositionC1C2C3 = cm.getCompositionHash(new AlmaComponent[] {new C1(), new C2(), new C3()});
-        CompositionHash compositionC3 = cm.getCompositionHash(new AlmaComponent[] {new C3()});
+        CompositionHash composition1 = cm.getClassIndex().getCompositionHash(new AlmaComponent[]{});
+        CompositionHash compositionC1C2C3 = cm.getClassIndex().getCompositionHash(new AlmaComponent[] {new C1(), new C2(), new C3()});
+        CompositionHash compositionC3 = cm.getClassIndex().getCompositionHash(new AlmaComponent[] {new C3()});
         TestUtils.printTestIteration("Empty", actual1, composition1);
         TestUtils.printTestIteration("C1, C2, C3", actual2, compositionC1C2C3);
         TestUtils.printTestIteration("C3", actual3, compositionC3);

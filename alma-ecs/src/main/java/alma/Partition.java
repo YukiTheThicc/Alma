@@ -1,9 +1,9 @@
 package alma;
 
 import alma.api.AlmaComponent;
+import alma.compositions.ClassIndex;
 import alma.utils.AlmaException;
 import alma.utils.IntStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -38,12 +38,21 @@ public final class Partition {
 
     // METHODS
 
-    private AlmaComponent[] alignComponents(AlmaComponent[] components) {
+    /**
+     *
+     * @param components
+     * @param classIndex
+     * @return
+     */
+    private AlmaComponent[] alignComponents(AlmaComponent[] components, ClassIndex classIndex) {
         if (components.length != stride)
             throw new AlmaException("Tried to insert wrong amount of components in partition");
         AlmaComponent[] alignedComponents = new AlmaComponent[components.length];
         for (AlmaComponent component : components) {
-
+            int cv = classIndex.get(component.getClass());
+            if (cv == -1)
+                throw new AlmaException("Tried to align a component type not supported by this partition");
+            alignedComponents[componentLayout[cv]] = component;
         }
         return alignedComponents;
     }
@@ -80,7 +89,7 @@ public final class Partition {
      * @param components Array of component instances
      * @return ID of the new entity
      */
-    public int addEntitySafe(AlmaComponent[] components) {
+    public int addEntitySafe(AlmaComponent[] components, ClassIndex classIndex) {
 
         int id = idStack.pop();
         if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
