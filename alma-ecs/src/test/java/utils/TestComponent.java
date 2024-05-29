@@ -2,14 +2,12 @@ package utils;
 
 import alma.api.AlmaComponent;
 
-import java.util.Objects;
-
 /**
  * TestComponent
  *
  * @author Santiago Barreiro
  */
-public class TestComponent extends AlmaComponent {
+public class TestComponent implements AlmaComponent {
 
     public int value;
 
