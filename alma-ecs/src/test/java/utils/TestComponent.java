@@ -1,13 +1,13 @@
 package utils;
 
-import alma.api.AlmaComponent;
+import alma.api.IComponent;
 
 /**
  * TestComponent
  *
  * @author Santiago Barreiro
  */
-public class TestComponent implements AlmaComponent {
+public class TestComponent implements IComponent {
 
     public int value;
 
@@ -20,7 +20,7 @@ public class TestComponent implements AlmaComponent {
     }
 
     @Override
-    public void copy(AlmaComponent target) {
+    public void copy(IComponent target) {
         if (target instanceof TestComponent) {
             this.value = ((TestComponent) target).value;
         }

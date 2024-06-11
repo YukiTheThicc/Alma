@@ -5,5 +5,5 @@ package alma.api;
  *
  * @author Santiago Barreiro
  */
-public interface AlmaSystem {
+public interface ISystem {
 }

@@ -1,7 +1,7 @@
 package internal;
 
 import alma.compositions.CompositionManager;
-import alma.api.AlmaComponent;
+import alma.api.IComponent;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import utils.TestComponent;
@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit;
 public class CompositionManagerBenchmark {
 
     CompositionManager cm;
-    AlmaComponent[] components1 = new AlmaComponent[]{new C1(1), new C2(2)};
-    AlmaComponent[] components2 = new AlmaComponent[]{new C1(1), new C2(2), new C3(3), new C4(4)};
-    AlmaComponent[] components3 = new AlmaComponent[]{new C1(1), new C2(2), new C3(3), new C4(4), new C5(5), new C6(6), new C7(7), new C8(8)};
+    IComponent[] components1 = new IComponent[]{new C1(1), new C2(2)};
+    IComponent[] components2 = new IComponent[]{new C1(1), new C2(2), new C3(3), new C4(4)};
+    IComponent[] components3 = new IComponent[]{new C1(1), new C2(2), new C3(3), new C4(4), new C5(5), new C6(6), new C7(7), new C8(8)};
 
     static class C1 extends TestComponent {
         public C1(int value) {

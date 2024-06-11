@@ -1,6 +1,7 @@
 package alma.compositions;
 
-import alma.api.AlmaComponent;
+import alma.api.IClassIndex;
+import alma.api.IComponent;
 import alma.utils.CompositionHash;
 
 import java.util.Arrays;
@@ -10,7 +11,7 @@ import java.util.Arrays;
  *
  * @author Santiago Barreiro
  */
-public class ClassIndex {
+public class ClassIndex implements IClassIndex {
 
     // CONSTANTS
     public static final int MAX_COMPONENTS = 1 << 8;
@@ -33,6 +34,7 @@ public class ClassIndex {
      * @param type Class to know the int value of
      * @return The int value of the class
      */
+    @Override
     public int get(Class<?> type) {
         return classIndex.get(type);
     }
@@ -44,6 +46,7 @@ public class ClassIndex {
      * @param types Array of class types
      * @return Array containing the int indexes of the classes
      */
+    @Override
     public int[] getIndexArray(Class<?>[] types) {
         int[] index = new int[MAX_COMPONENTS];
         Arrays.fill(index, -1);
@@ -59,7 +62,8 @@ public class ClassIndex {
      * @param components Array of components instances
      * @return Array of component types
      */
-    public Class<?>[] getComponentClasses(AlmaComponent[] components) {
+    @Override
+    public Class<?>[] getComponentClasses(Object[] components) {
         Class<?>[] componentTypes = new Class<?>[components.length];
         for (int i = 0; i < components.length; i++) componentTypes[i] = components[i].getClass();
         return componentTypes;
@@ -71,6 +75,7 @@ public class ClassIndex {
      * @param components List of component types to generate the IntHash
      * @return IntHash that identifies the composition matching the component list
      */
+    @Override
     public CompositionHash getCompositionHash(Class<?>[] components) {
         int length = components.length;
         boolean[] classSlots = new boolean[index + length + 1];
@@ -95,7 +100,8 @@ public class ClassIndex {
      * @param components List of components to generate the IntHash
      * @return IntHash that identifies the composition matching the component list
      */
-    public CompositionHash getCompositionHash(AlmaComponent[] components) {
+    @Override
+    public CompositionHash getCompositionHash(Object[] components) {
         return getCompositionHash(getComponentClasses(components));
     }
 }

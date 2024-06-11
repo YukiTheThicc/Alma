@@ -1,6 +1,7 @@
 package alma;
 
-import alma.api.AlmaComponent;
+import alma.api.IClassIndex;
+import alma.api.IComponent;
 import alma.utils.AlmaException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +19,43 @@ class PartitionTest {
     private Partition sut1;
     private Partition sut2;
     private Partition sut3;
-    private final AlmaComponent[] c1 = new AlmaComponent[]{new C1()};
-    private final AlmaComponent[] c1c2 = new AlmaComponent[]{new C1(), new C2()};
+    private final IComponent[] c1 = new IComponent[]{new C1()};
+    private final IComponent[] c1c2 = new IComponent[]{new C1(), new C2()};
+    private final IClassIndex index = new IClassIndex() {
+        private int index = 1;
+        // Used to map each class to an Integer value
+        private final ClassValue<Integer> classIndex = new ClassValue<>() {
+            @Override
+            protected Integer computeValue(Class<?> type) {
+                return index++;
+            }
+        };
+
+        @Override
+        public int get(Class<?> type) {
+            return classIndex.get(type);
+        }
+
+        @Override
+        public int[] getIndexArray(Class<?>[] types) {
+            return new int[0];
+        }
+
+        @Override
+        public Class<?>[] getComponentClasses(Object[] components) {
+            return new Class[0];
+        }
+
+        @Override
+        public IntKey getCompositionHash(Class<?>[] components) {
+            return null;
+        }
+
+        @Override
+        public IntKey getCompositionHash(Object[] components) {
+            return null;
+        }
+    };
 
     static class C1 extends TestComponent {
         public C1(int value) {
@@ -53,9 +89,9 @@ class PartitionTest {
 
     @BeforeEach
     void setUp() {
-        sut1 = new Partition(1, new IdHandler(), 1, new int[]{-1, 0});
-        sut2 = new Partition(2, new IdHandler(), 2, new int[]{-1, 0, 1});
-        sut3 = new Partition(3, new IdHandler(), 3, new int[]{-1, 0, 1, 2});
+        sut1 = new Partition(1, new IdHandler(), index, 1, new int[]{-1, 0});
+        sut2 = new Partition(2, new IdHandler(), index, 2, new int[]{-1, 0, 1});
+        sut3 = new Partition(3, new IdHandler(), index, 3, new int[]{-1, 0, 1, 2});
     }
 
     @AfterEach
@@ -118,16 +154,16 @@ class PartitionTest {
     void testRemove() {
 
         TestUtils.printTestHeader("testRemove");
-        AlmaComponent[] expectedC = new AlmaComponent[]{new C1(4), new C2(5), new C3(6)};
-        sut3.addEntityUnsafe(new AlmaComponent[]{new C1(1), new C2(2), new C3(3)});
+        IComponent[] expectedC = new IComponent[]{new C1(4), new C2(5), new C3(6)};
+        sut3.addEntityUnsafe(new IComponent[]{new C1(1), new C2(2), new C3(3)});
         int removed = sut3.addEntityUnsafe(expectedC);
-        sut3.addEntityUnsafe(new AlmaComponent[]{new C1(7), new C2(8), new C3(9)});
+        sut3.addEntityUnsafe(new IComponent[]{new C1(7), new C2(8), new C3(9)});
         sut3.removeEntity(removed);
-        int pooled = sut3.addEntityUnsafe(new AlmaComponent[]{new C1(10), new C2(11), new C3(12)});
-        sut3.addEntityUnsafe(new AlmaComponent[]{new C1(13), new C2(14), new C3(15)});
+        int pooled = sut3.addEntityUnsafe(new IComponent[]{new C1(10), new C2(11), new C3(12)});
+        sut3.addEntityUnsafe(new IComponent[]{new C1(13), new C2(14), new C3(15)});
         int expectedSize = 4;
         int actualSize = sut3.size();
-        AlmaComponent[] actualC = sut3.fetchEntityComponents(pooled);
+        IComponent[] actualC = sut3.fetchEntityComponents(pooled);
         TestUtils.printTestIteration("Add 5 remove 1", expectedSize, actualSize);
         TestUtils.printTestIteration("Component list", expectedC, actualC);
         assertEquals(expectedSize, actualSize);
@@ -137,14 +173,15 @@ class PartitionTest {
     @Test
     void testFetchEntityComponents() {
         TestUtils.printTestHeader("testFetchEntityComponents");
-        AlmaComponent[] expected = new AlmaComponent[]{new C1(4), new C2(5), new C3(6)};
-        sut3.addEntityUnsafe(new AlmaComponent[]{new C1(1), new C2(2), new C3(3)});
+        IComponent[] expected = new IComponent[]{new C1(4), new C2(5), new C3(6)};
+        sut3.addEntityUnsafe(new IComponent[]{new C1(1), new C2(2), new C3(3)});
         int expectedId = sut3.addEntityUnsafe(expected);
-        sut3.addEntityUnsafe(new AlmaComponent[]{new C1(4), new C2(5), new C3(6)});
-        AlmaComponent[] actual = sut3.fetchEntityComponents(expectedId);
-        AlmaComponent[] actualSelect2of3 = sut3.fetchEntityComponents(expectedId, new int[]{1, 2});
+        sut3.addEntitySafe(new IComponent[]{new C2(4), new C3(5), new C1(6)});
+        IComponent[] actual = sut3.fetchEntityComponents(expectedId);
+        IComponent[] actualSelect2of3 = sut3.fetchEntityComponents(expectedId, new int[]{1, 2});
 
         TestUtils.printTestIteration("Fetched components", expected, actual);
+        TestUtils.printTestIteration("Fetched components", expected, actualSelect2of3);
         assertArrayEquals(expected, actual);
         assertThrows(AlmaException.class, () -> {
             sut2.fetchEntityComponents(expectedId);
@@ -158,7 +195,7 @@ class PartitionTest {
         final int ITERATIONS = 5;
         for (int i = 1; i <= ITERATIONS; i++) {
 
-            sut2 = new Partition(2, new IdHandler(12, 12), 2, new int[]{1, 2});
+            sut2 = new Partition(2, new IdHandler(12, 12), index, 2, new int[]{1, 2});
             int partitionSize = (int) (Math.random() * 500000 + 2001);
             int removeInterval = (int) (Math.random() * 100 + 31);
             int expectedFinalSize = partitionSize - (partitionSize / removeInterval) - (partitionSize % removeInterval != 0 ? 1 : 0);
@@ -166,12 +203,12 @@ class PartitionTest {
 
             int randomEntityComponentCheck = (int) (Math.random() * expectedFinalSize + 0);
             int randomComponentCheckEntity = -1;
-            AlmaComponent[] randomExpectedComponents = null;
+            IComponent[] randomExpectedComponents = null;
             boolean randomEliminated = false;
 
             int previousEntity;
             for (int j = 0; j < partitionSize; j++) {
-                AlmaComponent[] components = new AlmaComponent[]{new C1((int) (Math.random() * Integer.MAX_VALUE + 1)), new C2((int) (Math.random() * Integer.MAX_VALUE + 1))};
+                IComponent[] components = new IComponent[]{new C1((int) (Math.random() * Integer.MAX_VALUE + 1)), new C2((int) (Math.random() * Integer.MAX_VALUE + 1))};
                 previousEntity = sut2.addEntityUnsafe(components);
                 if (j % removeInterval == 0) {
                     sut2.removeEntity(previousEntity);
@@ -205,7 +242,7 @@ class PartitionTest {
         final int ITERATIONS = 5;
         for (int i = 1; i <= ITERATIONS; i++) {
 
-            sut3 = new Partition(3, new IdHandler(12, 12), 3, new int[]{1, 2, 3});
+            sut3 = new Partition(3, new IdHandler(12, 12), index, 3, new int[]{1, 2, 3});
             int partitionSize = (int) (Math.random() * 500000 + 2001);
             int removeInterval = (int) (Math.random() * 100 + 31);
             int expectedFinalSize = partitionSize - (partitionSize / removeInterval) - (partitionSize % removeInterval != 0 ? 1 : 0);
@@ -213,12 +250,12 @@ class PartitionTest {
 
             int randomEntityComponentCheck = (int) (Math.random() * expectedFinalSize + 0);
             int randomComponentCheckEntity = -1;
-            AlmaComponent[] randomExpectedComponents = null;
+            IComponent[] randomExpectedComponents = null;
             boolean randomEliminated = false;
 
             int previousEntity;
             for (int j = 0; j < partitionSize; j++) {
-                AlmaComponent[] components = new AlmaComponent[]{
+                IComponent[] components = new IComponent[]{
                         new C1((int) (Math.random() * Integer.MAX_VALUE + 1)),
                         new C2((int) (Math.random() * Integer.MAX_VALUE + 1)),
                         new C3((int) (Math.random() * Integer.MAX_VALUE + 1))
@@ -253,10 +290,10 @@ class PartitionTest {
     void testPartitionIterator() {
 
         TestUtils.printTestHeader("testPartitionIterator");
-        AlmaComponent[] expectedArray = new AlmaComponent[]{new C1(3), new C2(4)};
-        sut2.addEntityUnsafe(new AlmaComponent[]{new C1(1), new C2(2)});
+        IComponent[] expectedArray = new IComponent[]{new C1(3), new C2(4)};
+        sut2.addEntityUnsafe(new IComponent[]{new C1(1), new C2(2)});
         sut2.addEntityUnsafe(expectedArray);
-        sut2.addEntityUnsafe(new AlmaComponent[]{new C1(5), new C2(6)});
+        sut2.addEntityUnsafe(new IComponent[]{new C1(5), new C2(6)});
 
         Iterator<Entity> iTest2 = sut2.filteredIterator(new int[]{1, 2});
         Iterator<Entity> iFailure = sut3.filteredIterator(new int[]{1, 2});

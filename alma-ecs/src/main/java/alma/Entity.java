@@ -1,6 +1,6 @@
 package alma;
 
-import alma.api.AlmaComponent;
+import alma.api.IComponent;
 
 /**
  * Entity
@@ -8,5 +8,5 @@ import alma.api.AlmaComponent;
  * @param id ATTRIBUTES
  * @author Santiago Barreiro
  */
-public record Entity(int id, AlmaComponent[] components) {
+public record Entity(int id, IComponent[] components) {
 }

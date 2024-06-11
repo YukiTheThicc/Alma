@@ -1,6 +1,6 @@
 package alma;
 
-import alma.api.AlmaComponent;
+import alma.api.IComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import utils.TestComponent;
@@ -42,12 +42,12 @@ class AlmaPoolTest {
     @BeforeEach
     void setUp() {
         sut = AlmaPool.Factory.create();
-        AlmaComponent[] composition1 = new AlmaComponent[]{new C1(1)};
-        AlmaComponent[] composition12 = new AlmaComponent[]{new C1(2), new C2(3)};
-        AlmaComponent[] composition231 = new AlmaComponent[]{new C2(12), new C3(13), new C1(14)};
-        AlmaComponent[] composition123 = new AlmaComponent[]{new C1(4), new C2(5), new C3(6)};
-        AlmaComponent[] composition23 = new AlmaComponent[]{new C2(7), new C3(8)};
-        AlmaComponent[] composition312 = new AlmaComponent[]{new C3(9), new C1(10), new C2(11)};
+        IComponent[] composition1 = new IComponent[]{new C1(1)};
+        IComponent[] composition12 = new IComponent[]{new C1(2), new C2(3)};
+        IComponent[] composition231 = new IComponent[]{new C2(12), new C3(13), new C1(14)};
+        IComponent[] composition123 = new IComponent[]{new C1(4), new C2(5), new C3(6)};
+        IComponent[] composition23 = new IComponent[]{new C2(7), new C3(8)};
+        IComponent[] composition312 = new IComponent[]{new C3(9), new C1(10), new C2(11)};
         int e1 = sut.createEntity(composition1);
         int e2 = sut.createEntity(composition12);
         int e3 = sut.createEntity(composition231);
@@ -63,7 +63,7 @@ class AlmaPoolTest {
 
     @Test
     void testQueryEntitiesFullJoin() {
-        sut.queryEntitiesWith(new Class<?>[]{C1.class, C2.class}).forEachEntity(result -> {
+        sut.queryEntitiesWith(new Class<?>[]{C3.class, C2.class}).forEachEntity(result -> {
             System.out.println(result.id());
             for (int i = 0; i < result.components().length; i++) {
                 System.out.println(result.components()[i]);

@@ -1,6 +1,6 @@
 package alma;
 
-import alma.api.AlmaComponent;
+import alma.api.IComponent;
 import alma.compositions.ClassIndex;
 import alma.compositions.Composition;
 import alma.utils.CompositionHash;
@@ -34,17 +34,17 @@ public final class AlmaPool {
     // METHODS
     private void createPartition(CompositionHash hash, Composition composition) {
         int[] componentIndex = classIndex.getIndexArray(composition.getComponentTypes());
-        Partition newPartition = new Partition(++partitionIndex, idHandler, composition.getSize(), componentIndex);
+        Partition newPartition = new Partition(++partitionIndex, idHandler, classIndex, composition.getSize(), componentIndex);
         partitions.put(hash, newPartition);
         composition.setPartition(newPartition);
     }
 
-    public int createEntity(AlmaComponent[] composition) {
+    public int createEntity(IComponent[] composition) {
         CompositionHash targetHash = classIndex.getCompositionHash(composition);
         // Lazily create the partition for this composition
         if (!partitions.containsKey(targetHash)) createPartition(targetHash, cm.getComposition(composition));
         Partition targetPartition = partitions.get(targetHash);
-        return targetPartition.addEntitySafe(composition, classIndex);
+        return targetPartition.addEntitySafe(composition);
     }
 
     public QueryResult queryEntitiesWith(Class<?>[] componentQuery) {

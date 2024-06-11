@@ -1,6 +1,5 @@
 package alma;
 
-import alma.api.AlmaComponent;
 import alma.compositions.Composition;
 import alma.utils.CompositionHash;
 

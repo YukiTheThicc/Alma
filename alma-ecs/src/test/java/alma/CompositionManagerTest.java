@@ -1,6 +1,6 @@
 package alma;
 
-import alma.api.AlmaComponent;
+import alma.api.IComponent;
 import alma.compositions.Composition;
 import alma.utils.CompositionHash;
 import alma.compositions.CompositionManager;
@@ -56,9 +56,9 @@ class CompositionManagerTest {
 
         TestUtils.printTestHeader("getIndexTest");
 
-        cm.getComposition(new AlmaComponent[]{new C3()});
-        cm.getComposition(new AlmaComponent[]{new C1()});
-        cm.getComposition(new AlmaComponent[]{new C2()});
+        cm.getComposition(new IComponent[]{new C3()});
+        cm.getComposition(new IComponent[]{new C1()});
+        cm.getComposition(new IComponent[]{new C2()});
         int expectedC1 = 2;
         int expectedC2 = 3;
         int expectedC3 = 1;
@@ -86,9 +86,9 @@ class CompositionManagerTest {
         int actual3 = 34;
 
         CompositionManager cm = new CompositionManager();
-        CompositionHash composition1 = cm.getClassIndex().getCompositionHash(new AlmaComponent[]{});
-        CompositionHash compositionC1C2C3 = cm.getClassIndex().getCompositionHash(new AlmaComponent[] {new C1(), new C2(), new C3()});
-        CompositionHash compositionC3 = cm.getClassIndex().getCompositionHash(new AlmaComponent[] {new C3()});
+        CompositionHash composition1 = cm.getClassIndex().getCompositionHash(new IComponent[]{});
+        CompositionHash compositionC1C2C3 = cm.getClassIndex().getCompositionHash(new IComponent[] {new C1(), new C2(), new C3()});
+        CompositionHash compositionC3 = cm.getClassIndex().getCompositionHash(new IComponent[] {new C3()});
         TestUtils.printTestIteration("Empty", actual1, composition1);
         TestUtils.printTestIteration("C1, C2, C3", actual2, compositionC1C2C3);
         TestUtils.printTestIteration("C3", actual3, compositionC3);
@@ -106,10 +106,10 @@ class CompositionManagerTest {
         Composition expectedC2C3 = new Composition(new Class[]{C2.class, C3.class});
         Composition expectedC3 = new Composition(new Class[]{C3.class});
         Composition expectedC1 = new Composition(new Class[]{C1.class});
-        Composition compositionC3C2 = cm.getComposition(new AlmaComponent[] {new C2(), new C3()});
-        Composition compositionC2C3 = cm.getComposition(new AlmaComponent[] {new C3(), new C2()});
-        Composition compositionC3 = cm.getComposition(new AlmaComponent[] {new C3()});
-        Composition compositionC1 = cm.getComposition(new AlmaComponent[] {new C1()});
+        Composition compositionC3C2 = cm.getComposition(new IComponent[] {new C2(), new C3()});
+        Composition compositionC2C3 = cm.getComposition(new IComponent[] {new C3(), new C2()});
+        Composition compositionC3 = cm.getComposition(new IComponent[] {new C3()});
+        Composition compositionC1 = cm.getComposition(new IComponent[] {new C1()});
         TestUtils.printTestIteration("C2 C3", expectedC2C3, compositionC2C3);
         TestUtils.printTestIteration("C2 C3 different order", expectedC2C3, compositionC3C2);
         TestUtils.printTestIteration("C3", expectedC3, compositionC3);
@@ -129,10 +129,10 @@ class CompositionManagerTest {
         Composition expectedC2C3 = new Composition(new Class[]{C2.class, C3.class});
         Composition expectedC3 = new Composition(new Class[]{C3.class});
         Composition expectedC1 = new Composition(new Class[]{C1.class});
-        Composition compositionC2C3 = cm.getComposition(new AlmaComponent[] {new C2(), new C3()});
-        Composition compositionC3C2 = cm.getComposition(new AlmaComponent[] {new C3(), new C2()});
-        Composition compositionC3 = cm.getComposition(new AlmaComponent[] {new C3()});
-        Composition compositionC1 = cm.getComposition(new AlmaComponent[] {new C1()});
+        Composition compositionC2C3 = cm.getComposition(new IComponent[] {new C2(), new C3()});
+        Composition compositionC3C2 = cm.getComposition(new IComponent[] {new C3(), new C2()});
+        Composition compositionC3 = cm.getComposition(new IComponent[] {new C3()});
+        Composition compositionC1 = cm.getComposition(new IComponent[] {new C1()});
         TestUtils.printTestIteration("C2 C3", expectedC2C3, compositionC2C3);
         TestUtils.printTestIteration("C2 C3 different order", expectedC2C3, compositionC3C2);
         TestUtils.printTestIteration("C3", expectedC3, compositionC3);
@@ -147,16 +147,16 @@ class CompositionManagerTest {
     public void queryCompositionsInnerJoinTest() {
 
         TestUtils.printTestHeader("queryCompositionsInnerJoinTest");
-        cm.getComposition(new AlmaComponent[]{new C1(), new C2()});
-        cm.getComposition(new AlmaComponent[]{new C2(), new C3()});
-        cm.getComposition(new AlmaComponent[]{new C2(), new C3(), new C4()});
-        cm.getComposition(new AlmaComponent[]{new C3()});
-        cm.getComposition(new AlmaComponent[]{new C1()});
+        cm.getComposition(new IComponent[]{new C1(), new C2()});
+        cm.getComposition(new IComponent[]{new C2(), new C3()});
+        cm.getComposition(new IComponent[]{new C2(), new C3(), new C4()});
+        cm.getComposition(new IComponent[]{new C3()});
+        cm.getComposition(new IComponent[]{new C1()});
 
         int expected1 = 2;
         int expected3 = 2;
-        Map<CompositionHash, Composition> actual1 = cm.queryCompositionsWith(new AlmaComponent[]{new C1()});
-        Map<CompositionHash, Composition> actual3 = cm.queryCompositionsWith(new AlmaComponent[]{new C2(), new C3()});
+        Map<CompositionHash, Composition> actual1 = cm.queryCompositionsWith(new IComponent[]{new C1()});
+        Map<CompositionHash, Composition> actual3 = cm.queryCompositionsWith(new IComponent[]{new C2(), new C3()});
         TestUtils.printTestIteration("Compositions with C1", expected1, actual1.values());
         TestUtils.printTestIteration("Compositions with C2 and C3", expected3, actual3.values());
 

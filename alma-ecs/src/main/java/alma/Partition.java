@@ -1,7 +1,7 @@
 package alma;
 
-import alma.api.AlmaComponent;
-import alma.compositions.ClassIndex;
+import alma.api.IClassIndex;
+import alma.api.IComponent;
 import alma.utils.AlmaException;
 import alma.utils.IntStack;
 
@@ -17,6 +17,7 @@ public final class Partition {
 
     // ATTRIBUTES - MAIN
     private final IdHandler idHandler;                  // IdHandler for the partition
+    private final IClassIndex classIndex;                // IdHandler for the partition
     private final IntStack idStack;                     // IdStack of reusable IDs for the partition
     private final PartitionChunk[] chunksSlots;         // Slots for the partitions chunks
     private final int[] componentLayout;                // Represents the order of the components inside the chunks
@@ -25,8 +26,9 @@ public final class Partition {
     private int usedChunks;                             // Current amount of used chunks
     private int size;                                   // Current amount of stored entities
 
-    public Partition(int iid, IdHandler idHandler, int stride, int[] componentLayout) {
+    public Partition(int iid, IdHandler idHandler, IClassIndex classIndex, int stride, int[] componentLayout) {
         this.idHandler = idHandler;
+        this.classIndex = classIndex;
         this.idStack = new IntStack(idHandler.invalidValue);
         this.chunksSlots = new PartitionChunk[1 << idHandler.partitionBitShift >> idHandler.partitionChunkCapacityBits];
         this.componentLayout = componentLayout;
@@ -38,21 +40,14 @@ public final class Partition {
 
     // METHODS
 
-    /**
-     *
-     * @param components
-     * @param classIndex
-     * @return
-     */
-    private AlmaComponent[] alignComponents(AlmaComponent[] components, ClassIndex classIndex) {
+    private IComponent[] alignComponents(IComponent[] components) {
         if (components.length != stride)
             throw new AlmaException("Tried to insert wrong amount of components in partition");
-        AlmaComponent[] alignedComponents = new AlmaComponent[components.length];
-        for (AlmaComponent component : components) {
-            int cv = classIndex.get(component.getClass());
-            if (cv == -1)
-                throw new AlmaException("Tried to align a component type not supported by this partition");
-            alignedComponents[componentLayout[cv]] = component;
+        IComponent[] alignedComponents = new IComponent[components.length];
+        for (IComponent component : components) {
+            int pos = componentLayout[classIndex.get(component.getClass())];
+            if (pos == -1) throw new AlmaException("Tried to insert a component that doesn't belong in this partition");
+            alignedComponents[pos] = component;
         }
         return alignedComponents;
     }
@@ -64,7 +59,7 @@ public final class Partition {
      * @param components Array of component instances
      * @return ID of the new entity
      */
-    public int addEntityUnsafe(AlmaComponent[] components) {
+    public int addEntityUnsafe(IComponent[] components) {
         int id = idStack.pop();
         if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
         int chunkId = idHandler.getPartitionChunk(id);
@@ -89,7 +84,7 @@ public final class Partition {
      * @param components Array of component instances
      * @return ID of the new entity
      */
-    public int addEntitySafe(AlmaComponent[] components, ClassIndex classIndex) {
+    public int addEntitySafe(IComponent[] components) {
 
         int id = idStack.pop();
         if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
@@ -103,7 +98,7 @@ public final class Partition {
             chunksSlots[chunkId] = chunk;
             usedChunks++;
         }
-        chunk.setEntity(chunkPos, id, stride, components);
+        chunk.setEntity(chunkPos, id, stride, alignComponents(components));
         size++;
         return id;
     }
@@ -147,12 +142,12 @@ public final class Partition {
      * @param entity ID of the entity to recover the components from
      * @return Array of components from the passed entity
      */
-    public AlmaComponent[] fetchEntityComponents(int entity) {
+    public IComponent[] fetchEntityComponents(int entity) {
         if (idHandler.getPartitionId(entity) != iid)
             throw new AlmaException("Tried to retrieve components for an entity of a different composition");
         if (idHandler.getItemId(entity) == idHandler.invalidValue)
             throw new AlmaException("Tried to fetch components of a non-existing entity");
-        AlmaComponent[] entityComponents = new AlmaComponent[stride];
+        IComponent[] entityComponents = new IComponent[stride];
         int chunkId = idHandler.getPartitionChunk(entity);
         int first = idHandler.getPartitionChunkPos(entity) * stride;
         java.lang.System.arraycopy(chunksSlots[chunkId].componentsSlots, first, entityComponents, 0, stride);
@@ -165,13 +160,13 @@ public final class Partition {
      * @param entity ID of the entity to recover the components from
      * @return The target components of the entity
      */
-    public AlmaComponent[] fetchEntityComponents(int entity, int[] componentIndex) {
+    public IComponent[] fetchEntityComponents(int entity, int[] componentIndex) {
         if (idHandler.getPartitionId(entity) != iid)
             throw new AlmaException("Tried to retrieve components for an entity of a different composition");
         if (idHandler.getItemId(entity) == idHandler.invalidValue)
             throw new AlmaException("Tried to fetch components of a non-existing entity");
 
-        AlmaComponent[] entityComponents = new AlmaComponent[componentIndex.length];
+        IComponent[] entityComponents = new IComponent[componentIndex.length];
         int chunkId = idHandler.getPartitionChunk(entity);
         int first = idHandler.getPartitionChunkPos(entity) * stride;
         for (int i = 0; i < componentIndex.length; i++) {
@@ -199,13 +194,13 @@ public final class Partition {
 
         // ATTRIBUTES
         private final int[] entitySlots;                    // List of entities handled by the partition chunk
-        private final AlmaComponent[] componentsSlots;      // List of components handled by the partition chunk
+        private final IComponent[] componentsSlots;      // List of components handled by the partition chunk
 
         // CONSTRUCTORS
         private PartitionChunk(int chunkSize, int stride, int invalidValue) {
             this.entitySlots = new int[chunkSize];
             Arrays.fill(this.entitySlots, invalidValue);
-            this.componentsSlots = new AlmaComponent[chunkSize * stride];
+            this.componentsSlots = new IComponent[chunkSize * stride];
         }
 
         // METHODS
@@ -229,7 +224,7 @@ public final class Partition {
          * @param stride     Total offset or size of the component array
          * @param components Array of components corresponding to the new entity
          */
-        private void setEntity(int pos, int entity, int stride, AlmaComponent[] components) {
+        private void setEntity(int pos, int entity, int stride, IComponent[] components) {
             for (int i = 0; i < stride; i++) {
                 int c_pos = pos * stride + i;
                 if (componentsSlots[c_pos] != null) componentsSlots[c_pos].copy(components[i]);
@@ -256,16 +251,6 @@ public final class Partition {
         private int iteratedEntities;
 
         // CONSTRUCTORS
-        PartitionIterator(Partition origin) {
-            this.origin = origin;
-            this.nextEntityIndex = 0;
-            this.filter = null;
-            this.chunkIndex = 0;
-            this.currentEntity = origin.idHandler.invalidValue;
-            this.iteratedEntities = 0;
-            this.maxChunkCapacity = origin.idHandler.partitionChunkCapacity;
-        }
-
         PartitionIterator(Partition origin, int[] filter) {
             this.origin = origin;
             this.nextEntityIndex = 0;

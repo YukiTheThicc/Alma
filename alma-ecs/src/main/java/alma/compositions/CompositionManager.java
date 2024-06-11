@@ -1,6 +1,6 @@
 package alma.compositions;
 
-import alma.api.AlmaComponent;
+import alma.api.IComponent;
 import alma.utils.CompositionHash;
 
 import java.util.Map;
@@ -79,7 +79,7 @@ public final class CompositionManager {
      * @param components List of component classes to match the composition
      * @return The matched composition
      */
-    public Composition getComposition(AlmaComponent[] components) {
+    public Composition getComposition(IComponent[] components) {
         return getComposition(classIndex.getComponentClasses(components));
     }
 
@@ -97,7 +97,7 @@ public final class CompositionManager {
      * @param components Array of components that want to be found
      * @return Map of compositions that match the query
      */
-    public Map<CompositionHash, Composition> queryCompositionsWith(AlmaComponent[] components) {
+    public Map<CompositionHash, Composition> queryCompositionsWith(IComponent[] components) {
         return queryCompositionsWith(classIndex.getComponentClasses(components));
     }
 

@@ -1,5 +1,7 @@
 package alma.utils;
 
+import alma.api.IClassIndex;
+
 import java.util.Arrays;
 
 /**
@@ -7,7 +9,7 @@ import java.util.Arrays;
  *
  * @author Santiago Barreiro
  */
-public final class CompositionHash {
+public final class CompositionHash implements IClassIndex.IntKey {
 
     // CONSTANTS
     public static final int HASH_FACTOR = 31;       // Hash factor to obtain the hash from
