@@ -1,6 +1,6 @@
 package internal;
 
-import alma.compositions.CompositionManager;
+import alma.archetypes.ArchetypeMap;
 import alma.api.IComponent;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Thread)
 public class CompositionManagerBenchmark {
 
-    CompositionManager cm;
+    ArchetypeMap cm;
     IComponent[] components1 = new IComponent[]{new C1(1), new C2(2)};
     IComponent[] components2 = new IComponent[]{new C1(1), new C2(2), new C3(3), new C4(4)};
     IComponent[] components3 = new IComponent[]{new C1(1), new C2(2), new C3(3), new C4(4), new C5(5), new C6(6), new C7(7), new C8(8)};
@@ -72,28 +72,28 @@ public class CompositionManagerBenchmark {
 
     @Setup(Level.Iteration)
     public void setup() {
-        cm = new CompositionManager();
+        cm = new ArchetypeMap();
     }
 
     @Benchmark
     public void queryComposition2ComponentsBenchmark(Blackhole bh) {
-        CompositionManager cm = new CompositionManager();
-        cm.getComposition(components1);
-        bh.consume(cm.getComposition(components1));
+        ArchetypeMap cm = new ArchetypeMap();
+        cm.getArchetype(components1);
+        bh.consume(cm.getArchetype(components1));
     }
 
     @Benchmark
     public void queryComposition4ComponentsBenchmark(Blackhole bh) {
-        CompositionManager cm = new CompositionManager();
-        cm.getComposition(components2);
-        bh.consume(cm.getComposition(components2));
+        ArchetypeMap cm = new ArchetypeMap();
+        cm.getArchetype(components2);
+        bh.consume(cm.getArchetype(components2));
     }
 
     @Benchmark
     public void queryComposition8ComponentsBenchmark(Blackhole bh) {
-        CompositionManager cm = new CompositionManager();
-        cm.getComposition(components3);
-        bh.consume(cm.getComposition(components3));
+        ArchetypeMap cm = new ArchetypeMap();
+        cm.getArchetype(components3);
+        bh.consume(cm.getArchetype(components3));
     }
 
     public static void main(String[] args) throws Exception {

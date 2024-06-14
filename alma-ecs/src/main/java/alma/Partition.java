@@ -193,8 +193,8 @@ public final class Partition {
     private static class PartitionChunk {
 
         // ATTRIBUTES
-        private final int[] entitySlots;                    // List of entities handled by the partition chunk
-        private final IComponent[] componentsSlots;      // List of components handled by the partition chunk
+        private final int[] entitySlots;                    // Array of entity IDs handled by this chunk
+        private final IComponent[] componentsSlots;         // List of components handled by the partition chunk
 
         // CONSTRUCTORS
         private PartitionChunk(int chunkSize, int stride, int invalidValue) {

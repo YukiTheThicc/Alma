@@ -1,6 +1,6 @@
 package alma;
 
-import alma.utils.CompositionHash;
+import alma.archetypes.ArchetypeHash;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,7 @@ import utils.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CompositionHashTest {
+class ArchetypeHashTest {
 
     @BeforeEach
     void setup() {
@@ -27,9 +27,9 @@ class CompositionHashTest {
         long expectedHashPF = 30817;
         long expectedHashO = 986147;
 
-        CompositionHash actualE = new CompositionHash(new boolean[] {false, false}, 1 ,1, 0);
-        CompositionHash actualPF = new CompositionHash(new boolean[] {false, true, true, true}, 1 ,3, 3);
-        CompositionHash actualO = new CompositionHash(new boolean[] {false, false, true, true, false, true, true}, 2 ,6, 4);
+        ArchetypeHash actualE = new ArchetypeHash(new boolean[] {false, false}, 1 ,1, 0);
+        ArchetypeHash actualPF = new ArchetypeHash(new boolean[] {false, true, true, true}, 1 ,3, 3);
+        ArchetypeHash actualO = new ArchetypeHash(new boolean[] {false, false, true, true, false, true, true}, 2 ,6, 4);
         TestUtils.printTestIteration("Empty hash", expectedHashE, actualE.hashCode());
         TestUtils.printTestIteration("Starts on 2", expectedHashPF, actualPF.hashCode());
         TestUtils.printTestIteration("Has 'holes'", expectedHashO, actualO.hashCode());
@@ -45,8 +45,8 @@ class CompositionHashTest {
         TestUtils.printTestHeader("testTestEquals");
         long expectedHashEquals = 994;
 
-        CompositionHash actualEquals = new CompositionHash(new boolean[] {false, true, true}, 1 ,2, 2);
-        CompositionHash actualNotEquals =  new CompositionHash(new boolean[] {false}, 0 ,0, 0);
+        ArchetypeHash actualEquals = new ArchetypeHash(new boolean[] {false, true, true}, 1 ,2, 2);
+        ArchetypeHash actualNotEquals =  new ArchetypeHash(new boolean[] {false}, 0 ,0, 0);
         TestUtils.printTestIteration("Equals", expectedHashEquals, actualEquals.hashCode());
         TestUtils.printTestIteration("Not equals", actualEquals.hashCode(), actualNotEquals.hashCode());
         assertAll(

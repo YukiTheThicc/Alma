@@ -1,8 +1,6 @@
-package alma.compositions;
+package alma.archetypes;
 
 import alma.api.IClassIndex;
-import alma.api.IComponent;
-import alma.utils.CompositionHash;
 
 import java.util.Arrays;
 
@@ -76,7 +74,7 @@ public class ClassIndex implements IClassIndex {
      * @return IntHash that identifies the composition matching the component list
      */
     @Override
-    public CompositionHash getCompositionHash(Class<?>[] components) {
+    public ArchetypeHash getCompositionHash(Class<?>[] components) {
         int length = components.length;
         boolean[] classSlots = new boolean[index + length + 1];
         int begin = Integer.MAX_VALUE;
@@ -91,7 +89,7 @@ public class ClassIndex implements IClassIndex {
             begin = Math.min(value, begin);
             end = Math.max(value, end);
         }
-        return new CompositionHash(classSlots, begin, end, length);
+        return new ArchetypeHash(classSlots, begin, end, length);
     }
 
     /**
@@ -101,7 +99,7 @@ public class ClassIndex implements IClassIndex {
      * @return IntHash that identifies the composition matching the component list
      */
     @Override
-    public CompositionHash getCompositionHash(Object[] components) {
+    public ArchetypeHash getCompositionHash(Object[] components) {
         return getCompositionHash(getComponentClasses(components));
     }
 }

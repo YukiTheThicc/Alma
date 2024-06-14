@@ -1,4 +1,4 @@
-package alma.compositions;
+package alma.archetypes;
 
 import alma.Partition;
 
@@ -8,7 +8,7 @@ import alma.Partition;
  *
  * @author Santiago Barreiro
  */
-public final class Composition {
+public final class Archetype {
 
     // ATTRIBUTES
     private final Class<?>[] componentTypes;
@@ -16,7 +16,7 @@ public final class Composition {
     private Partition partition = null;
 
     // CONSTRUCTORS
-    public Composition(Class<?>[] componentTypes) {
+    public Archetype(Class<?>[] componentTypes) {
         this.componentTypes = componentTypes;
         this.size = componentTypes.length;
     }

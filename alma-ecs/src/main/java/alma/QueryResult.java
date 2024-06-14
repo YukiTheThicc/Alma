@@ -1,7 +1,7 @@
 package alma;
 
-import alma.compositions.Composition;
-import alma.utils.CompositionHash;
+import alma.archetypes.Archetype;
+import alma.archetypes.ArchetypeHash;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -15,17 +15,17 @@ public final class QueryResult {
 
     // ATTRIBUTES
     private final int[] componentIndex;
-    private final Map<CompositionHash, Composition> queriedCompositions;
+    private final Map<ArchetypeHash, Archetype> queriedCompositions;
 
     // CONSTRUCTORS
-    public QueryResult(int[] query, Map<CompositionHash, Composition> queriedCompositions) {
+    public QueryResult(int[] query, Map<ArchetypeHash, Archetype> queriedCompositions) {
         this.componentIndex = query;
         this.queriedCompositions = queriedCompositions;
     }
 
     // METHODS
     public QueryResult forEachEntity(Consumer<Entity> function) {
-        for (Composition c : queriedCompositions.values()) {
+        for (Archetype c : queriedCompositions.values()) {
             Iterator<Entity> filteredIterator = c.getPartition().filteredIterator(componentIndex);
             while (filteredIterator.hasNext()) {
                 function.accept(filteredIterator.next());

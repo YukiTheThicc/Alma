@@ -1,6 +1,6 @@
 package alma;
 
-import alma.compositions.Composition;
+import alma.archetypes.Archetype;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,7 @@ import utils.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CompositionTest {
+class ArchetypeTest {
 
     static class C1 {
     }
@@ -19,11 +19,11 @@ class CompositionTest {
     static class C3 {
     }
 
-    Composition sut;
+    Archetype sut;
 
     @BeforeEach
     void setUp() {
-        sut = new Composition(new Class[]{C1.class, C2.class, C3.class});
+        sut = new Archetype(new Class[]{C1.class, C2.class, C3.class});
     }
 
     @AfterEach

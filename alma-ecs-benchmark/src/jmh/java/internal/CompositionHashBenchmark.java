@@ -1,6 +1,6 @@
 package internal;
 
-import alma.utils.CompositionHash;
+import alma.archetypes.ArchetypeHash;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
@@ -21,17 +21,17 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Thread)
 public class CompositionHashBenchmark {
 
-    CompositionHash ch;
+    ArchetypeHash ch;
     boolean[] classSlots = new boolean[]{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
 
     @Setup(Level.Iteration)
     public void setup() {
-        ch = new CompositionHash(classSlots, 0, 15, 16);
+        ch = new ArchetypeHash(classSlots, 0, 15, 16);
     }
 
     @Benchmark
-    public CompositionHash queryComposition2ComponentsBenchmark(Blackhole bh) {
-        return new CompositionHash(classSlots, 0, 15, 16);
+    public ArchetypeHash queryComposition2ComponentsBenchmark(Blackhole bh) {
+        return new ArchetypeHash(classSlots, 0, 15, 16);
     }
 
     public static void main(String[] args) throws Exception {

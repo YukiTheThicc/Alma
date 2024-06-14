@@ -1,7 +1,5 @@
 package alma.api;
 
-import alma.utils.CompositionHash;
-
 /**
  * ClassIndex
  *

@@ -1,10 +1,10 @@
 package alma;
 
 import alma.api.IComponent;
-import alma.compositions.ClassIndex;
-import alma.compositions.Composition;
-import alma.utils.CompositionHash;
-import alma.compositions.CompositionManager;
+import alma.archetypes.ClassIndex;
+import alma.archetypes.Archetype;
+import alma.archetypes.ArchetypeHash;
+import alma.archetypes.ArchetypeMap;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,20 +19,20 @@ public final class AlmaPool {
     // ATTRIBUTES
     private final IdHandler idHandler;
     private final ClassIndex classIndex;
-    private final CompositionManager cm;
-    private final Map<CompositionHash, Partition> partitions;
+    private final ArchetypeMap cm;
+    private final Map<ArchetypeHash, Partition> partitions;
     private int partitionIndex = -1;
 
     // CONSTRUCTORS
     private AlmaPool() {
         this.idHandler = new IdHandler();
         this.classIndex = new ClassIndex();
-        this.cm = new CompositionManager();
+        this.cm = new ArchetypeMap();
         this.partitions = new ConcurrentHashMap<>();
     }
 
     // METHODS
-    private void createPartition(CompositionHash hash, Composition composition) {
+    private void createPartition(ArchetypeHash hash, Archetype composition) {
         int[] componentIndex = classIndex.getIndexArray(composition.getComponentTypes());
         Partition newPartition = new Partition(++partitionIndex, idHandler, classIndex, composition.getSize(), componentIndex);
         partitions.put(hash, newPartition);
@@ -40,15 +40,15 @@ public final class AlmaPool {
     }
 
     public int createEntity(IComponent[] composition) {
-        CompositionHash targetHash = classIndex.getCompositionHash(composition);
+        ArchetypeHash targetHash = classIndex.getCompositionHash(composition);
         // Lazily create the partition for this composition
-        if (!partitions.containsKey(targetHash)) createPartition(targetHash, cm.getComposition(composition));
+        if (!partitions.containsKey(targetHash)) createPartition(targetHash, cm.getArchetype(composition));
         Partition targetPartition = partitions.get(targetHash);
         return targetPartition.addEntitySafe(composition);
     }
 
     public QueryResult queryEntitiesWith(Class<?>[] componentQuery) {
-        Map<CompositionHash, Composition> compositions = cm.queryCompositionsWith(componentQuery);
+        Map<ArchetypeHash, Archetype> compositions = cm.queryCompositionsWith(componentQuery);
         int[] componentsIndex = new int[componentQuery.length];
         for (int i = 0; i < componentQuery.length; i++) {
             componentsIndex[i] = classIndex.get(componentQuery[i]);

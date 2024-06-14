@@ -1,9 +1,9 @@
 package alma;
 
 import alma.api.IComponent;
-import alma.compositions.Composition;
-import alma.utils.CompositionHash;
-import alma.compositions.CompositionManager;
+import alma.archetypes.Archetype;
+import alma.archetypes.ArchetypeHash;
+import alma.archetypes.ArchetypeMap;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CompositionManagerTest {
+class ArchetypeMapTest {
 
     static class C1 extends TestComponent {
         public C1() {
@@ -39,11 +39,11 @@ class CompositionManagerTest {
             super();
         }
     }
-    private CompositionManager cm;
+    private ArchetypeMap cm;
 
     @BeforeEach
     public void setup() {
-        cm = new CompositionManager();
+        cm = new ArchetypeMap();
     }
 
     @AfterEach
@@ -56,9 +56,9 @@ class CompositionManagerTest {
 
         TestUtils.printTestHeader("getIndexTest");
 
-        cm.getComposition(new IComponent[]{new C3()});
-        cm.getComposition(new IComponent[]{new C1()});
-        cm.getComposition(new IComponent[]{new C2()});
+        cm.getArchetype(new IComponent[]{new C3()});
+        cm.getArchetype(new IComponent[]{new C1()});
+        cm.getArchetype(new IComponent[]{new C2()});
         int expectedC1 = 2;
         int expectedC2 = 3;
         int expectedC3 = 1;
@@ -85,10 +85,10 @@ class CompositionManagerTest {
         int actual2 = 30817;
         int actual3 = 34;
 
-        CompositionManager cm = new CompositionManager();
-        CompositionHash composition1 = cm.getClassIndex().getCompositionHash(new IComponent[]{});
-        CompositionHash compositionC1C2C3 = cm.getClassIndex().getCompositionHash(new IComponent[] {new C1(), new C2(), new C3()});
-        CompositionHash compositionC3 = cm.getClassIndex().getCompositionHash(new IComponent[] {new C3()});
+        ArchetypeMap cm = new ArchetypeMap();
+        ArchetypeHash composition1 = cm.getClassIndex().getCompositionHash(new IComponent[]{});
+        ArchetypeHash compositionC1C2C3 = cm.getClassIndex().getCompositionHash(new IComponent[] {new C1(), new C2(), new C3()});
+        ArchetypeHash compositionC3 = cm.getClassIndex().getCompositionHash(new IComponent[] {new C3()});
         TestUtils.printTestIteration("Empty", actual1, composition1);
         TestUtils.printTestIteration("C1, C2, C3", actual2, compositionC1C2C3);
         TestUtils.printTestIteration("C3", actual3, compositionC3);
@@ -103,13 +103,13 @@ class CompositionManagerTest {
         TestUtils.printTestHeader("getCompositionClassTest");
         // Test if manually created composition has same components as composition handled by the manager
 
-        Composition expectedC2C3 = new Composition(new Class[]{C2.class, C3.class});
-        Composition expectedC3 = new Composition(new Class[]{C3.class});
-        Composition expectedC1 = new Composition(new Class[]{C1.class});
-        Composition compositionC3C2 = cm.getComposition(new IComponent[] {new C2(), new C3()});
-        Composition compositionC2C3 = cm.getComposition(new IComponent[] {new C3(), new C2()});
-        Composition compositionC3 = cm.getComposition(new IComponent[] {new C3()});
-        Composition compositionC1 = cm.getComposition(new IComponent[] {new C1()});
+        Archetype expectedC2C3 = new Archetype(new Class[]{C2.class, C3.class});
+        Archetype expectedC3 = new Archetype(new Class[]{C3.class});
+        Archetype expectedC1 = new Archetype(new Class[]{C1.class});
+        Archetype compositionC3C2 = cm.getArchetype(new IComponent[] {new C2(), new C3()});
+        Archetype compositionC2C3 = cm.getArchetype(new IComponent[] {new C3(), new C2()});
+        Archetype compositionC3 = cm.getArchetype(new IComponent[] {new C3()});
+        Archetype compositionC1 = cm.getArchetype(new IComponent[] {new C1()});
         TestUtils.printTestIteration("C2 C3", expectedC2C3, compositionC2C3);
         TestUtils.printTestIteration("C2 C3 different order", expectedC2C3, compositionC3C2);
         TestUtils.printTestIteration("C3", expectedC3, compositionC3);
@@ -126,13 +126,13 @@ class CompositionManagerTest {
         TestUtils.printTestHeader("getCompositionClassTest");
         // Test if manually created composition has same components as composition handled by the manager
 
-        Composition expectedC2C3 = new Composition(new Class[]{C2.class, C3.class});
-        Composition expectedC3 = new Composition(new Class[]{C3.class});
-        Composition expectedC1 = new Composition(new Class[]{C1.class});
-        Composition compositionC2C3 = cm.getComposition(new IComponent[] {new C2(), new C3()});
-        Composition compositionC3C2 = cm.getComposition(new IComponent[] {new C3(), new C2()});
-        Composition compositionC3 = cm.getComposition(new IComponent[] {new C3()});
-        Composition compositionC1 = cm.getComposition(new IComponent[] {new C1()});
+        Archetype expectedC2C3 = new Archetype(new Class[]{C2.class, C3.class});
+        Archetype expectedC3 = new Archetype(new Class[]{C3.class});
+        Archetype expectedC1 = new Archetype(new Class[]{C1.class});
+        Archetype compositionC2C3 = cm.getArchetype(new IComponent[] {new C2(), new C3()});
+        Archetype compositionC3C2 = cm.getArchetype(new IComponent[] {new C3(), new C2()});
+        Archetype compositionC3 = cm.getArchetype(new IComponent[] {new C3()});
+        Archetype compositionC1 = cm.getArchetype(new IComponent[] {new C1()});
         TestUtils.printTestIteration("C2 C3", expectedC2C3, compositionC2C3);
         TestUtils.printTestIteration("C2 C3 different order", expectedC2C3, compositionC3C2);
         TestUtils.printTestIteration("C3", expectedC3, compositionC3);
@@ -147,16 +147,16 @@ class CompositionManagerTest {
     public void queryCompositionsInnerJoinTest() {
 
         TestUtils.printTestHeader("queryCompositionsInnerJoinTest");
-        cm.getComposition(new IComponent[]{new C1(), new C2()});
-        cm.getComposition(new IComponent[]{new C2(), new C3()});
-        cm.getComposition(new IComponent[]{new C2(), new C3(), new C4()});
-        cm.getComposition(new IComponent[]{new C3()});
-        cm.getComposition(new IComponent[]{new C1()});
+        cm.getArchetype(new IComponent[]{new C1(), new C2()});
+        cm.getArchetype(new IComponent[]{new C2(), new C3()});
+        cm.getArchetype(new IComponent[]{new C2(), new C3(), new C4()});
+        cm.getArchetype(new IComponent[]{new C3()});
+        cm.getArchetype(new IComponent[]{new C1()});
 
         int expected1 = 2;
         int expected3 = 2;
-        Map<CompositionHash, Composition> actual1 = cm.queryCompositionsWith(new IComponent[]{new C1()});
-        Map<CompositionHash, Composition> actual3 = cm.queryCompositionsWith(new IComponent[]{new C2(), new C3()});
+        Map<ArchetypeHash, Archetype> actual1 = cm.queryCompositionsWith(new IComponent[]{new C1()});
+        Map<ArchetypeHash, Archetype> actual3 = cm.queryCompositionsWith(new IComponent[]{new C2(), new C3()});
         TestUtils.printTestIteration("Compositions with C1", expected1, actual1.values());
         TestUtils.printTestIteration("Compositions with C2 and C3", expected3, actual3.values());
 
