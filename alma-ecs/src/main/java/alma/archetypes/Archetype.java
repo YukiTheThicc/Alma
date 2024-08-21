@@ -1,6 +1,6 @@
 package alma.archetypes;
 
-import alma.Partition;
+import alma.architecture.Partition;
 
 /**
  * A composition is a structure describing the composition of one type of entity. It holds a map of the component classes

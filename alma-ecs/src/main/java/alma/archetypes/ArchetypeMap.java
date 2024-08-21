@@ -1,6 +1,7 @@
 package alma.archetypes;
 
 import alma.api.IComponent;
+import alma.utils.ClassIndex;
 
 import java.util.Map;
 import java.util.Set;

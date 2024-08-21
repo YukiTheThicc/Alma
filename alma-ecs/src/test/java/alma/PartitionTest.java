@@ -2,6 +2,7 @@ package alma;
 
 import alma.api.IClassIndex;
 import alma.api.IComponent;
+import alma.architecture.Partition;
 import alma.utils.AlmaException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,10 +82,11 @@ class PartitionTest {
         public C3(int value) {
             super(value);
         }
+    }
 
-        public C3() {
-            super();
-        }
+    enum TestState {
+        STATE1,
+        STATE2
     }
 
     @BeforeEach
@@ -183,9 +185,17 @@ class PartitionTest {
         TestUtils.printTestIteration("Fetched components", expected, actual);
         TestUtils.printTestIteration("Fetched components", expected, actualSelect2of3);
         assertArrayEquals(expected, actual);
-        assertThrows(AlmaException.class, () -> {
-            sut2.fetchEntityComponents(expectedId);
-        });
+        assertThrows(AlmaException.class, () -> sut2.fetchEntityComponents(expectedId));
+    }
+
+    @Test
+    void testSetState() {
+        TestUtils.printTestHeader("testAddEntity");
+        sut1.addEntityUnsafe(c1);
+        int added = sut1.addEntityUnsafe(c1);
+        sut1.addEntityUnsafe(c1);
+        sut1.addEntityState(TestState.STATE1, added);
+        sut1.addEntityState(TestState.STATE2, added);
     }
 
     @Test
@@ -295,8 +305,30 @@ class PartitionTest {
         sut2.addEntityUnsafe(expectedArray);
         sut2.addEntityUnsafe(new IComponent[]{new C1(5), new C2(6)});
 
-        Iterator<Entity> iTest2 = sut2.filteredIterator(new int[]{1, 2});
-        Iterator<Entity> iFailure = sut3.filteredIterator(new int[]{1, 2});
+        Iterator<Entity> iTest2 = sut2.iterator(new int[]{1, 2});
+        Iterator<Entity> iFailure = sut3.iterator(new int[]{1, 2});
+
+        iTest2.next();
+        Entity e = iTest2.next();
+
+        TestUtils.printTestIteration("has next after 2", true, iTest2.hasNext());
+        TestUtils.printTestIteration("2nd Entity components", expectedArray, e.components());
+        assertTrue(iTest2.hasNext());
+        assertArrayEquals(expectedArray, e.components());
+        assertThrows(AlmaException.class, iFailure::next);
+    }
+
+    @Test
+    void testPartitionIteratorWithState() {
+
+        TestUtils.printTestHeader("testPartitionIterator");
+        IComponent[] expectedArray = new IComponent[]{new C1(3), new C2(4)};
+        sut2.addEntityUnsafe(new IComponent[]{new C1(1), new C2(2)});
+        sut2.addEntityUnsafe(expectedArray);
+        sut2.addEntityUnsafe(new IComponent[]{new C1(5), new C2(6)});
+
+        Iterator<Entity> iTest2 = sut2.iterator(new int[]{1, 2});
+        Iterator<Entity> iFailure = sut3.iterator(new int[]{1, 2});
 
         iTest2.next();
         Entity e = iTest2.next();

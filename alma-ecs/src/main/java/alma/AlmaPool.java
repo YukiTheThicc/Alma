@@ -1,7 +1,9 @@
 package alma;
 
 import alma.api.IComponent;
-import alma.archetypes.ClassIndex;
+import alma.architecture.Partition;
+import alma.architecture.QueryResult;
+import alma.utils.ClassIndex;
 import alma.archetypes.Archetype;
 import alma.archetypes.ArchetypeHash;
 import alma.archetypes.ArchetypeMap;

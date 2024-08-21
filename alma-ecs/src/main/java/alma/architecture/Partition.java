@@ -1,12 +1,17 @@
-package alma;
+package alma.architecture;
 
+import alma.Entity;
+import alma.IdHandler;
 import alma.api.IClassIndex;
 import alma.api.IComponent;
 import alma.utils.AlmaException;
+import alma.utils.BitFlag;
 import alma.utils.IntStack;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A partition is a linked data structure that holds the data from a specific entity composition.
@@ -16,21 +21,23 @@ import java.util.Iterator;
 public final class Partition {
 
     // ATTRIBUTES - MAIN
-    private final IdHandler idHandler;                  // IdHandler for the partition
-    private final IClassIndex classIndex;                // IdHandler for the partition
-    private final IntStack idStack;                     // IdStack of reusable IDs for the partition
-    private final PartitionChunk[] chunksSlots;         // Slots for the partitions chunks
-    private final int[] componentLayout;                // Represents the order of the components inside the chunks
-    private final int stride;                           // Stride of the composition stored in the partition
-    private final int iid;                              // Internal ID of the partition
-    private int usedChunks;                             // Current amount of used chunks
-    private int size;                                   // Current amount of stored entities
+    private final IdHandler idHandler;                      // IdHandler for the partition
+    private final IClassIndex classIndex;                   // IdHandler for the partition
+    private final IntStack idStack;                         // IdStack of reusable IDs for the partition
+    private final PartitionChunk[] chunksSlots;             // Slots for the partitions chunks
+    private final PartitionStateChunk[] stateChunksSlots;   // Slots for the partitions chunks
+    private final int[] componentLayout;                    // Represents the order of the components inside the chunks
+    private final int stride;                               // Stride of the composition stored in the partition
+    private final int iid;                                  // Internal ID of the partition
+    private int usedChunks;                                 // Current amount of used chunks
+    private int size;                                       // Current amount of stored entities
 
     public Partition(int iid, IdHandler idHandler, IClassIndex classIndex, int stride, int[] componentLayout) {
         this.idHandler = idHandler;
         this.classIndex = classIndex;
         this.idStack = new IntStack(idHandler.invalidValue);
         this.chunksSlots = new PartitionChunk[1 << idHandler.partitionBitShift >> idHandler.partitionChunkCapacityBits];
+        this.stateChunksSlots = new PartitionStateChunk[1 << idHandler.partitionBitShift >> idHandler.partitionChunkCapacityBits];
         this.componentLayout = componentLayout;
         this.stride = stride;
         this.iid = iid;
@@ -40,6 +47,13 @@ public final class Partition {
 
     // METHODS
 
+    /**
+     * Aligns an array of components to the component layout the partition is supposed to have, as to maintain data cohesion.
+     * Throws an exception if the array cannot be aligned to the partition.
+     *
+     * @param components Array of components to be aligned
+     * @return A new array with the aligned components
+     */
     private IComponent[] alignComponents(IComponent[] components) {
         if (components.length != stride)
             throw new AlmaException("Tried to insert wrong amount of components in partition");
@@ -50,6 +64,18 @@ public final class Partition {
             alignedComponents[pos] = component;
         }
         return alignedComponents;
+    }
+
+    private PartitionChunk getChunk(int chunkId) {
+        PartitionChunk chunk = chunksSlots[chunkId];
+        // Lazily create target chunk if it was null before addition
+        if (chunk == null) {
+            chunk = new PartitionChunk(idHandler.partitionChunkCapacity, stride, idHandler.invalidValue);
+            chunksSlots[chunkId] = chunk;
+            stateChunksSlots[chunkId] = new PartitionStateChunk(idHandler.partitionChunkCapacity);
+            usedChunks++;
+        }
+        return chunk;
     }
 
     /**
@@ -64,14 +90,7 @@ public final class Partition {
         if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
         int chunkId = idHandler.getPartitionChunk(id);
         int chunkPos = idHandler.getPartitionChunkPos(id);
-
-        PartitionChunk chunk = chunksSlots[chunkId];
-        // Lazily create target chunk if it was null before addition
-        if (chunk == null) {
-            chunk = new PartitionChunk(idHandler.partitionChunkCapacity, stride, idHandler.invalidValue);
-            chunksSlots[chunkId] = chunk;
-            usedChunks++;
-        }
+        PartitionChunk chunk = getChunk(chunkId);
         chunk.setEntity(chunkPos, id, stride, components);
         size++;
         return id;
@@ -90,14 +109,7 @@ public final class Partition {
         if (id == idHandler.invalidValue) id = idHandler.generateIID(iid, size);
         int chunkId = idHandler.getPartitionChunk(id);
         int chunkPos = idHandler.getPartitionChunkPos(id);
-
-        PartitionChunk chunk = chunksSlots[chunkId];
-        // Lazily create target chunk if it was null before addition
-        if (chunk == null) {
-            chunk = new PartitionChunk(idHandler.partitionChunkCapacity, stride, idHandler.invalidValue);
-            chunksSlots[chunkId] = chunk;
-            usedChunks++;
-        }
+        PartitionChunk chunk = getChunk(chunkId);
         chunk.setEntity(chunkPos, id, stride, alignComponents(components));
         size++;
         return id;
@@ -175,6 +187,11 @@ public final class Partition {
         return entityComponents;
     }
 
+    public void addEntityState(Enum<?> state, int entity) {
+        PartitionStateChunk a = stateChunksSlots[idHandler.getPartitionChunk(entity)];
+        a.setEntityState(idHandler.getPartitionChunkPos(entity), state);
+    }
+
     /**
      * Creates an iterator for the Partition that filters which component types are fetched within the partition. Does not
      * check for invalid component indexes or if the components themselves are stored in this composition.
@@ -182,13 +199,13 @@ public final class Partition {
      * @param relevantComponents Array of he indexes of the components to be fetched
      * @return An iterator that will walk through all available entities in the partition and return them with just the desired component types
      */
-    public Iterator<Entity> filteredIterator(int[] relevantComponents) {
+    public Iterator<Entity> iterator(int[] relevantComponents) {
         return new PartitionIterator(this, relevantComponents);
     }
 
     /**
      * Static private class that models a single partition chunk. Each chunk is of a fixed power-of-two size as to make
-     * fast bitwise operations as to fetch the chunk id and the entity chunk position
+     * fast bitwise operations to fetch the chunk id and the entity chunk position
      */
     private static class PartitionChunk {
 
@@ -231,6 +248,48 @@ public final class Partition {
                 else componentsSlots[c_pos] = components[i];
             }
             entitySlots[pos] = entity;
+        }
+    }
+
+    private static class PartitionStateChunk {
+
+        // ATTRIBUTES
+        //private final BitFlag entityStates;
+        private final int chunkSize;
+        private final HashMap<Enum<?>, BitFlag> stateMaps;
+
+        // CONSTRUCTORS
+        private PartitionStateChunk(int chunkSize) {
+            //this.entityStates = new BitFlag(chunkSize);
+            this.chunkSize = chunkSize;
+            this.stateMaps = new HashMap<>();
+        }
+
+        // METHODS
+        private BitFlag getMap(Enum<?> state) {
+            BitFlag map = stateMaps.get(state);
+            if (map == null) {
+                map = new BitFlag(chunkSize);
+                stateMaps.put(state, map);
+            }
+            //stateMaps.putIfAbsent(state, new BitFlag(chunkSize));
+            return map;
+        }
+
+        void setEntityState(int entity, Enum<?> state) {
+            //entityStates.setFlag(entity * 32 + state, true);
+            BitFlag map = getMap(state);
+            map.setFlag(entity, true);
+        }
+
+        void flipEntityState(int entity, Enum<?> state) {
+            //entityStates.flipFlag(entity * 32 + state);
+            stateMaps.get(state).flipFlag(entity);
+
+        }
+
+        void clearEntityState() {
+
         }
     }
 
@@ -290,8 +349,10 @@ public final class Partition {
          */
         @Override
         public Entity next() {
+
             if (origin.usedChunks == 0 || chunkIndex >= origin.usedChunks)
                 throw new AlmaException("Tried to iterate onto a non-used chunk slot. ¿Have you forgotten to check with hasNext()?");
+
             boolean foundNext = false;
             Entity e = null;
             do {
@@ -299,9 +360,7 @@ public final class Partition {
                 if (currentEntity != origin.idHandler.invalidValue) {
                     foundNext = true;
                     iteratedEntities++;
-                    e = filter == null ?
-                            new Entity(currentEntity, origin.fetchEntityComponents(currentEntity)) :
-                            new Entity(currentEntity, origin.fetchEntityComponents(currentEntity, filter));
+                    e = new Entity(currentEntity, origin.fetchEntityComponents(currentEntity, filter));
                 }
 
                 // Handle next entity and chunk index

@@ -1,6 +1,7 @@
-package alma.archetypes;
+package alma.utils;
 
 import alma.api.IClassIndex;
+import alma.archetypes.ArchetypeHash;
 
 import java.util.Arrays;
 
